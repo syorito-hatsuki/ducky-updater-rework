@@ -1,29 +1,22 @@
-package dev.syoritohatsuki.duckyupdater;
+package dev.syoritohatsuki.duckyupdater
 
-import com.google.common.hash.Hashing;
-import com.google.common.io.Files;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.GsonBuilder;
-import dev.syoritohatsuki.duckyupdater.dto.LatestVersionsFromHashesBody;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
-import net.fabricmc.loader.api.metadata.ModOrigin;
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.GsonBuilder
+import dev.syoritohatsuki.duckyupdater.dto.LatestVersionsFromHashesBody
+import net.fabricmc.loader.api.FabricLoader
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Locale;
-import java.util.function.Predicate
-import java.util.function.Supplier
-import kotlin.jvm.optionals.getOrNull
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 object DuckyUpdater {
 
-    const val MOD_ID = "ducky-updater";
+    val logger: Logger = LoggerFactory.getLogger(javaClass.simpleName)
+
+    const val MOD_ID = "ducky-updater"
 
     fun getUpdates(hashes: Set<String>): String {
         return HttpClient.newHttpClient().send(

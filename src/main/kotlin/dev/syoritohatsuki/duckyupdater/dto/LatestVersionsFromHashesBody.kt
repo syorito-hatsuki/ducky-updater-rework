@@ -2,7 +2,6 @@ package dev.syoritohatsuki.duckyupdater.dto
 
 import com.google.gson.annotations.SerializedName
 import net.minecraft.SharedConstants
-import java.util.Set
 
 data class LatestVersionsFromHashesBody(
     var hashes: Collection<String>,

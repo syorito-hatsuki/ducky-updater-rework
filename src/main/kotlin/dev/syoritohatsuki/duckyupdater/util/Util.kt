@@ -1,10 +1,9 @@
-package dev.syoritohatsuki.duckyupdater
+package dev.syoritohatsuki.duckyupdater.util
 
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModOrigin
-import org.slf4j.LoggerFactory
 import java.io.IOException
 import kotlin.jvm.optionals.getOrNull
 
