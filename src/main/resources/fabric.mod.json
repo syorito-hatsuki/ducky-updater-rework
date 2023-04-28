@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "ducky-updater",
+  "version": "${version}",
+  "name": "Ducky Updater",
+  "authors": [
+    "Syorito Hatsuki"
+  ],
+  "contact": {
+    "homepage": "https://syorito-hatsuki.dev/"
+  },
+  "license": "MIT Licence",
+  "environment": "*",
+  "mixins": [
+    "duckyupdater.mixins.json"
+  ],
+  "custom": {
+    "mcb": [
+      {
+        "name": "Ducky Utils",
+        "fillColor": -13730510,
+        "outlineColor": -11751600
+      }
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loaderVersion}",
+    "minecraft": ">=1.19",
+    "java": ">=${javaVersion}"
+  },
+  "recommends": {
+    "modmenu-badges-lib": "*"
+  }
+}
