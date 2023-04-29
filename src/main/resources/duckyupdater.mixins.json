@@ -9,6 +9,8 @@
     "MinecraftServerMixin"
   ],
   "client": [
-    "client.ClientPlayerEntityMixin"
+  ],
+  "mixins": [
+    "BootstrapMixin"
   ]
 }

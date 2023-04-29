@@ -2,11 +2,14 @@ package dev.syoritohatsuki.duckyupdater
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonParser
 import dev.syoritohatsuki.duckyupdater.dto.LatestVersionsFromHashesBody
+import dev.syoritohatsuki.duckyupdater.util.getSha512Hash
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.ModContainer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -16,17 +19,26 @@ object DuckyUpdater {
 
     val logger: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    const val MOD_ID = "ducky-updater"
+    private const val MOD_ID = "ducky-updater"
+    private lateinit var updateData: MutableMap<String, JsonElement>
 
-    fun getUpdates(hashes: Set<String>): String {
-        return HttpClient.newHttpClient().send(
+    val hashes = HashMap<String, ModContainer>()
+
+    fun checkForUpdate() {
+        FabricLoader.getInstance().allMods.forEach { modContainer ->
+            getSha512Hash(modContainer)?.let {
+                hashes[it] = modContainer
+            }
+        }
+
+        updateData = JsonParser.parseString(HttpClient.newHttpClient().send(
             HttpRequest.newBuilder()
                 .POST(
                     HttpRequest.BodyPublishers.ofString(
                         GsonBuilder()
                             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                             .create()
-                            .toJson(LatestVersionsFromHashesBody(hashes))
+                            .toJson(LatestVersionsFromHashesBody(hashes.keys))
                     )
                 )
                 .header("User-Agent", "syorito-hatsuki/ducky-updater/${
@@ -43,6 +55,8 @@ object DuckyUpdater {
                 .header("Content-Type", "application/json")
                 .uri(URI.create("https://api.modrinth.com/v2/version_files/update"))
                 .build(), HttpResponse.BodyHandlers.ofString()
-        ).body()
+        ).body()).asJsonObject.asMap()
     }
+
+    fun getUpdates(): MutableMap<String, JsonElement> = updateData
 }
