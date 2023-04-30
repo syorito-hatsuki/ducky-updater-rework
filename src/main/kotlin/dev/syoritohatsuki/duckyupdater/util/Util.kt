@@ -2,12 +2,11 @@ package dev.syoritohatsuki.duckyupdater.util
 
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
+import dev.syoritohatsuki.duckyupdater.dto.VersionDiff
 import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModOrigin
 import java.io.IOException
 import kotlin.jvm.optionals.getOrNull
-
-typealias VersionDiff = Triple<String, String, String>
 
 fun getSha512Hash(modContainer: ModContainer): String? {
     if (modContainer.containingMod.isEmpty && modContainer.origin.kind == ModOrigin.Kind.PATH) {

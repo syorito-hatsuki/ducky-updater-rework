@@ -2,6 +2,7 @@ package dev.syoritohatsuki.duckyupdater.mixin;
 
 import com.google.gson.JsonObject;
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater;
+import dev.syoritohatsuki.duckyupdater.dto.VersionDiff;
 import dev.syoritohatsuki.duckyupdater.util.AnsiKt;
 import dev.syoritohatsuki.duckyupdater.util.UtilKt;
 import net.fabricmc.loader.api.metadata.ModMetadata;
@@ -35,10 +36,10 @@ public abstract class MinecraftServerMixin {
                 firstLine.set(false);
             }
 
-            var version = UtilKt.diff(metadata.getVersion().getFriendlyString(), data.get("version_number").getAsString());
+            VersionDiff version = UtilKt.diff(metadata.getVersion().getFriendlyString(), data.get("version_number").getAsString());
             if (version == null) return;
 
-            logger.info(AnsiKt.MOD_UPDATE, metadata.getName(), version.getThird(), version.getFirst(), version.getThird(), version.getSecond());
+            logger.info(AnsiKt.MOD_UPDATE, metadata.getName(), version.getMatched(), version.getOldVersion(), version.getMatched(), version.getNewVersion());
 
         });
         if (!firstLine.get()) logger.info("");

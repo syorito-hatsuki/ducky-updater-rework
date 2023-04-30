@@ -19,7 +19,7 @@ object DuckyUpdater {
 
     val logger: Logger = LoggerFactory.getLogger(javaClass.simpleName)
 
-    private const val MOD_ID = "ducky-updater"
+    const val MOD_ID = "ducky-updater"
     private lateinit var updateData: MutableMap<String, JsonElement>
 
     val hashes = HashMap<String, ModContainer>()
@@ -56,6 +56,8 @@ object DuckyUpdater {
                 .uri(URI.create("https://api.modrinth.com/v2/version_files/update"))
                 .build(), HttpResponse.BodyHandlers.ofString()
         ).body()).asJsonObject.asMap()
+
+        logger.info("new data collected")
     }
 
     fun getUpdates(): MutableMap<String, JsonElement> = updateData
