@@ -37,7 +37,8 @@ object DuckyUpdater {
         hashMods()
 
         requestUpdatesFromApi().forEach { (hash, jsonElement) ->
-            hashes[hash]?.metadata?.let { meta ->
+            hashes[hash]?.let { modContainer ->
+                val meta = modContainer.metadata
                 val oldVersion = meta.version.friendlyString
                 val newVersion = jsonElement.asJsonObject.get("version_number").asString
                 val commonPrefix = oldVersion.commonPrefixWith(newVersion)
@@ -48,6 +49,8 @@ object DuckyUpdater {
                     UpdateVersions(
                         meta.id,
                         meta.name,
+                        modContainer.origin.paths[0],
+                        jsonElement.asJsonObject.get("files").asJsonArray.get(0).asJsonObject.get("filename").asString,
                         jsonElement.asJsonObject.get("files").asJsonArray.get(0).asJsonObject.get("url").asString,
                         jsonElement.asJsonObject.get("changelog").asString,
                         UpdateVersions.Versions(
