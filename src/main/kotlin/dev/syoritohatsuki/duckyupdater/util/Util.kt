@@ -2,7 +2,6 @@ package dev.syoritohatsuki.duckyupdater.util
 
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
-import dev.syoritohatsuki.duckyupdater.dto.VersionDiff
 import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModOrigin
 import java.io.IOException
@@ -22,9 +21,4 @@ fun getSha512Hash(modContainer: ModContainer): String? {
         }
     }
     return null
-}
-
-fun diff(oldVersion: String, newVersion: String): VersionDiff? = if (oldVersion == newVersion) null else {
-    val commonPrefix = oldVersion.commonPrefixWith(newVersion)
-    VersionDiff(oldVersion.removePrefix(commonPrefix), newVersion.removePrefix(commonPrefix), commonPrefix)
 }

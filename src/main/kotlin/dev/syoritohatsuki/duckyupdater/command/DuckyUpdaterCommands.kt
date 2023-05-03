@@ -1,21 +1,14 @@
 package dev.syoritohatsuki.duckyupdater.command
 
-import com.google.gson.JsonObject
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.checkForUpdate
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.getUpdates
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.hashes
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.logger
-import dev.syoritohatsuki.duckyupdater.util.diff
-import net.fabricmc.loader.api.metadata.ModMetadata
+import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateVersions
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.MutableText
-import net.minecraft.text.Text
-import net.minecraft.text.TextContent
+import net.minecraft.text.*
 import net.minecraft.util.Formatting
 
 fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
@@ -36,30 +29,27 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
 
             checkForUpdate()
 
-            getUpdates().forEach { (hash, jsonElement) ->
-                val data: JsonObject = jsonElement.asJsonObject
-                val metadata: ModMetadata = hashes[hash]!!.metadata
+            updateVersions.forEach {
 
                 if (firstLine) {
-                    append("")
-                    append("Updates available")
+                    append(Text.literal("Updates available").formatted(Formatting.YELLOW).formatted(Formatting.BOLD))
                     firstLine = false
                 }
 
-                val version = diff(metadata.version.friendlyString, data["version_number"].asString) ?: return@forEach
-
                 append(
-                    Text.literal(metadata.name).append(Text.literal(" [").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(version.oldVersion).formatted(Formatting.GRAY))
-                        .append(Text.literal(version.matched).formatted(Formatting.RED))
+                    Text.literal("\n - ${it.modName} ")
+                        .append(Text.literal("[").formatted(Formatting.DARK_GRAY))
+                        .append(Text.literal(it.versions.matched).formatted(Formatting.GRAY))
+                        .append(Text.literal(it.versions.oldVersion).formatted(Formatting.RED))
                         .append(Text.literal(" -> ").formatted(Formatting.DARK_GRAY))
-                        .append(Text.literal(version.matched).formatted(Formatting.GRAY))
-                        .append(Text.literal(version.newVersion).formatted(Formatting.GREEN))
-                        .append(Text.literal("]").formatted(Formatting.DARK_GRAY))
+                        .append(Text.literal(it.versions.matched).formatted(Formatting.GRAY))
+                        .append(Text.literal(it.versions.newVersion).formatted(Formatting.GREEN))
+                        .append(Text.literal("]").formatted(Formatting.DARK_GRAY)).styled { style ->
+                            style.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, it.url))
+                                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(it.changeLog)))
+                        }
                 )
-                logger.info("printing...")
             }
-            if (!firstLine) append("")
         }, false
     )
 
