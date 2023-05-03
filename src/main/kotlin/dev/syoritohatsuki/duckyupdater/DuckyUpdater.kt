@@ -40,8 +40,6 @@ object DuckyUpdater {
             hashes[hash]?.metadata?.let { meta ->
                 val oldVersion = meta.version.friendlyString
                 val newVersion = jsonElement.asJsonObject.get("version_number").asString
-                logger.info(oldVersion)
-                logger.info(newVersion)
                 val commonPrefix = oldVersion.commonPrefixWith(newVersion)
 
                 if (newVersion == oldVersion) return@forEach
