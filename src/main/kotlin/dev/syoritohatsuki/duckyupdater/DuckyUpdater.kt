@@ -1,20 +1,31 @@
 package dev.syoritohatsuki.duckyupdater
 
+import com.google.common.hash.Hashing
+import com.google.common.io.Files
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import dev.syoritohatsuki.duckyupdater.dto.LatestVersionsFromHashesBody
 import dev.syoritohatsuki.duckyupdater.dto.UpdateVersions
-import dev.syoritohatsuki.duckyupdater.util.getSha512Hash
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
+import net.fabricmc.loader.api.metadata.ModOrigin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.net.URI
+import java.net.URL
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.nio.channels.Channels
+import java.nio.file.Path
+import java.util.concurrent.CompletableFuture
+import kotlin.jvm.optionals.getOrNull
+
 
 object DuckyUpdater {
 
@@ -64,10 +75,54 @@ object DuckyUpdater {
         }
     }
 
+    fun updateByModId(modId: String): Int {
+        updateVersions.first { it.modId == modId }.let {
+            return downloadAsync(modId, it.url, it.modPath.parent, it.remoteFileName)
+        }
+    }
+
+    fun updateAll(): Map<String, Int> = mutableMapOf<String, Int>().apply {
+        updateVersions.forEach {
+            put(it.modId, downloadAsync(it.modId, it.url, it.modPath.parent, it.remoteFileName))
+        }
+    }
+
+    private fun downloadAsync(modId: String, url: String, path: Path, fileName: String): Int =
+        CompletableFuture.supplyAsync {
+            try {
+                FileOutputStream(File(path.toFile(), fileName))
+                    .channel.transferFrom(Channels.newChannel(URL(url).openStream()), 0, Long.MAX_VALUE)
+            } catch (e: Exception) {
+                File(path.parent.toFile(), fileName).delete()
+                logger.error(e.stackTraceToString())
+                return@supplyAsync 0
+            }
+            path.toFile().delete()
+            _updateVersions.removeIf { versions -> versions.modId == modId }
+            logger.info("$modId updated successful")
+            return@supplyAsync 1
+        }.join()
+
     private fun hashMods() = FabricLoader.getInstance().allMods.forEach { modContainer ->
         getSha512Hash(modContainer)?.let {
             hashes[it] = modContainer
         }
+    }
+
+    private fun getSha512Hash(modContainer: ModContainer): String? {
+        if (modContainer.containingMod.isEmpty && modContainer.origin.kind == ModOrigin.Kind.PATH) {
+            modContainer.origin.paths.stream().filter {
+                it.toString().lowercase().endsWith(".jar")
+            }.findFirst().getOrNull()?.let {
+                val file = it.toFile()
+                if (file.isFile) try {
+                    return Files.asByteSource(file).hash(Hashing.sha512()).toString()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        return null
     }
 
     private fun requestUpdatesFromApi(): MutableMap<String, JsonElement> = JsonParser.parseString(

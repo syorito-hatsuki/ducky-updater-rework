@@ -7,16 +7,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.checkForUpdate
+import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateAll
+import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateByModId
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateVersions
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.*
 import net.minecraft.util.Formatting
-import java.io.File
-import java.io.FileOutputStream
-import java.net.URL
-import java.nio.channels.Channels
-
 
 fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
     listOf("du", MOD_ID).forEach { rootLiteral ->
@@ -24,13 +21,12 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
             LiteralArgumentBuilder.literal<ServerCommandSource>(rootLiteral)
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource>("check-for-updates")
                     .executes { it.executeCheckForUpdates() })
-                .then(
-                    LiteralArgumentBuilder.literal<ServerCommandSource>("download").then(
-                        CommandManager.argument("modId", StringArgumentType.word()).executes {
-                            it.executeDownloadUpdates()
-                        }
-                    )
-                )
+                .then(LiteralArgumentBuilder.literal<ServerCommandSource>("update").then(
+                    CommandManager.argument("modId", StringArgumentType.word())
+                        .executes { it.executeUpdate() }
+                ).then(LiteralArgumentBuilder.literal<ServerCommandSource?>("all")
+                    .executes { it.executeUpdateAll() }
+                ))
         )
     }
 }
@@ -46,7 +42,11 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
             updateVersions.forEach {
 
                 if (firstLine) {
-                    append(Text.literal("Updates available").formatted(Formatting.YELLOW).formatted(Formatting.BOLD))
+                    append(
+                        Text.literal("Updates available")
+                            .formatted(Formatting.YELLOW)
+                            .formatted(Formatting.BOLD)
+                    )
                     firstLine = false
                 }
 
@@ -59,8 +59,17 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
                         .append(Text.literal(it.versions.matched).formatted(Formatting.GRAY))
                         .append(Text.literal(it.versions.newVersion).formatted(Formatting.GREEN))
                         .append(Text.literal("]").formatted(Formatting.DARK_GRAY)).styled { style ->
-                            style.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, it.url))
-                                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(it.changeLog)))
+                            style.withClickEvent(
+                                ClickEvent(
+                                    ClickEvent.Action.SUGGEST_COMMAND,
+                                    "/du update ${it.modId}"
+                                )
+                            ).withHoverEvent(
+                                HoverEvent(
+                                    HoverEvent.Action.SHOW_TEXT,
+                                    Text.literal(it.changeLog)
+                                )
+                            )
                         }
                 )
             }
@@ -70,22 +79,45 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
     return Command.SINGLE_SUCCESS
 }
 
-private fun CommandContext<ServerCommandSource>.executeDownloadUpdates(): Int {
+private fun CommandContext<ServerCommandSource>.executeUpdate(): Int {
+    val modId = StringArgumentType.getString(this, "modId")
+    updateByModId(modId).let {
+        when (it) {
+            0 -> source.sendFeedback(
+                Text.literal("Can't update $modId, please check logs!")
+                    .formatted(Formatting.RED)
+                    .formatted(Formatting.BOLD),
+                false
+            )
 
-    updateVersions.first { it.modId == StringArgumentType.getString(this, "modId") }.let {
-        try {
-            FileOutputStream(
-                File(
-                    it.modPath.parent.toFile(),
-                    it.remoteFileName
-                )
-            ).channel.transferFrom(Channels.newChannel(URL(it.url).openStream()), 0, Long.MAX_VALUE)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return -1
+            1 -> source.sendFeedback(
+                Text.literal("$modId updated successful")
+                    .formatted(Formatting.GREEN)
+                    .formatted(Formatting.BOLD),
+                false
+            )
         }
-        it.modPath.toFile().delete()
     }
+    return Command.SINGLE_SUCCESS
+}
 
+private fun CommandContext<ServerCommandSource>.executeUpdateAll(): Int {
+    updateAll().forEach {
+        when (it.value) {
+            0 -> source.sendFeedback(
+                Text.literal("Can't update ${it.key}, please check logs!")
+                    .formatted(Formatting.RED)
+                    .formatted(Formatting.BOLD),
+                false
+            )
+
+            1 -> source.sendFeedback(
+                Text.literal("${it.key} updated successful")
+                    .formatted(Formatting.GREEN)
+                    .formatted(Formatting.BOLD),
+                false
+            )
+        }
+    }
     return Command.SINGLE_SUCCESS
 }
