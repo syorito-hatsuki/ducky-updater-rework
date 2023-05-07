@@ -23,9 +23,10 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.channels.Channels
 import java.nio.file.Path
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import kotlin.jvm.optionals.getOrNull
-
 
 object DuckyUpdater {
 
@@ -65,9 +66,7 @@ object DuckyUpdater {
                         jsonElement.asJsonObject.get("files").asJsonArray.get(0).asJsonObject.get("url").asString,
                         jsonElement.asJsonObject.get("changelog").asString,
                         UpdateVersions.Versions(
-                            oldVersion.removePrefix(commonPrefix),
-                            newVersion.removePrefix(commonPrefix),
-                            commonPrefix
+                            oldVersion.removePrefix(commonPrefix), newVersion.removePrefix(commonPrefix), commonPrefix
                         )
                     )
                 )
@@ -77,7 +76,7 @@ object DuckyUpdater {
 
     fun updateByModId(modId: String): Int {
         updateVersions.first { it.modId == modId }.let {
-            return downloadAsync(modId, it.url, it.modPath.parent, it.remoteFileName)
+            return downloadAsync(modId, it.url, it.modPath, it.remoteFileName)
         }
     }
 
@@ -87,21 +86,34 @@ object DuckyUpdater {
         }
     }
 
-    private fun downloadAsync(modId: String, url: String, path: Path, fileName: String): Int =
-        CompletableFuture.supplyAsync {
+    private fun downloadAsync(modId: String, url: String, path: Path, fileName: String): Int {
+        logger.warn("Downloading: $modId")
+        val executor = Executors.newSingleThreadExecutor()
+        val future: Future<Int> = executor.submit(Callable {
             try {
-                FileOutputStream(File(path.toFile(), fileName))
-                    .channel.transferFrom(Channels.newChannel(URL(url).openStream()), 0, Long.MAX_VALUE)
+                //FIXME Not work with bluemap
+                logger.warn("Trying: $modId")
+                FileOutputStream(
+                    File(
+                        path.parent.toFile(),
+                        fileName
+                    )
+                ).channel.transferFrom(Channels.newChannel(URL(url).openStream()), 0, Long.MAX_VALUE)
             } catch (e: Exception) {
+                logger.warn("Catcher: $modId")
                 File(path.parent.toFile(), fileName).delete()
-                logger.error(e.stackTraceToString())
-                return@supplyAsync 0
+                logger.warn(e.stackTraceToString())
+                return@Callable 0
             }
             path.toFile().delete()
-            _updateVersions.removeIf { versions -> versions.modId == modId }
+//                _updateVersions.removeIf { versions -> versions.modId == modId }
             logger.info("$modId updated successful")
-            return@supplyAsync 1
-        }.join()
+            return@Callable 1
+        })
+        executor.shutdown()
+        logger.warn("Executor end: $modId")
+        return future.get()
+    }
 
     private fun hashMods() = FabricLoader.getInstance().allMods.forEach { modContainer ->
         getSha512Hash(modContainer)?.let {
