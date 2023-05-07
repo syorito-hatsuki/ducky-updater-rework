@@ -91,21 +91,16 @@ object DuckyUpdater {
         val executor = Executors.newSingleThreadExecutor()
         val future: Future<Int> = executor.submit(Callable {
             try {
-                //FIXME Not work with bluemap
                 logger.warn("Trying: $modId")
-                FileOutputStream(
-                    File(
-                        path.parent.toFile(),
-                        fileName
-                    )
-                ).channel.transferFrom(Channels.newChannel(URL(url).openStream()), 0, Long.MAX_VALUE)
+                FileOutputStream(File(path.parent.toFile(), fileName))
+                    .channel.transferFrom(Channels.newChannel(URL(url).openStream()), 0, Long.MAX_VALUE)
             } catch (e: Exception) {
                 logger.warn("Catcher: $modId")
                 File(path.parent.toFile(), fileName).delete()
                 logger.warn(e.stackTraceToString())
                 return@Callable 0
             }
-            path.toFile().delete()
+            if (!path.fileName.endsWith(fileName)) path.toFile().delete()
 //                _updateVersions.removeIf { versions -> versions.modId == modId }
             logger.info("$modId updated successful")
             return@Callable 1
