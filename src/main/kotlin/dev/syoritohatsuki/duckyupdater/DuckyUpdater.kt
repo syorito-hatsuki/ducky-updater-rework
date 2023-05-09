@@ -98,7 +98,7 @@ object DuckyUpdater {
                 return@Callable 0
             }
             if (!path.fileName.endsWith(fileName)) path.toFile().delete()
-            //TODO Remove mod from list after update
+            // TODO Remove mod from list after update
             return@Callable 1
         })
         executor.shutdown()

@@ -11,6 +11,7 @@ import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.checkForUpdate
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateAll
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateByModId
+import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateVersions
 import dev.syoritohatsuki.duckyupdater.util.*
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
@@ -25,7 +26,7 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
                     .executes { it.executeCheckForUpdates() })
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource?>("update-on-startup").then(
                     CommandManager.argument("enable", BoolArgumentType.bool())
-                        .executes { it.enableUpdateOnStartUp() }
+                        .executes { it.executeEnableUpdateOnStartUp() }
                 ))
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource>("update").then(
                     CommandManager.argument("modId", StringArgumentType.word())
@@ -34,7 +35,7 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
                     .executes { it.executeUpdateAll() }
                 )).then(LiteralArgumentBuilder.literal<ServerCommandSource?>("ignore").then(
                     CommandManager.argument("modId", StringArgumentType.word())
-                        .executes { it.ignoreUpdate() }
+                        .executes { it.executeIgnoreUpdate() }
                 ))
         )
     }
@@ -53,32 +54,50 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
 
 private fun CommandContext<ServerCommandSource>.executeUpdate(): Int {
     val modId = StringArgumentType.getString(this, "modId")
+
     updateByModId(modId).let {
         if (source.player == null) updateStatusCliMessage(modId, it) else source.sendFeedback(
-            MutableText.of(TextContent.EMPTY).updateStatusChatMessage(modId, it), false
+            updateStatusChatMessage(modId, it), false
         )
     }
+
     return Command.SINGLE_SUCCESS
 }
 
 private fun CommandContext<ServerCommandSource>.executeUpdateAll(): Int {
     updateAll().forEach {
         if (source.player == null) updateStatusCliMessage(it.key, it.value) else source.sendFeedback(
-            MutableText.of(TextContent.EMPTY).updateStatusChatMessage(it.key, it.value), false
+            updateStatusChatMessage(it.key, it.value), false
         )
     }
+
     return Command.SINGLE_SUCCESS
 }
 
-private fun CommandContext<ServerCommandSource>.ignoreUpdate(): Int {
-    //TODO
+private fun CommandContext<ServerCommandSource>.executeIgnoreUpdate(): Int {
+    updateVersions.find { it.modId == StringArgumentType.getString(this, "modId") }?.let {
+        val version = "${it.versions.matched}${it.versions.newVersion}"
+
+        ConfigManager.addVersionToIgnore(it.modId, version)
+
+        if (source.player == null) ignoreUpdateCliMessage(it.modId, version) else source.sendFeedback(
+            ignoreUpdateChatMessage(it.modId, version), false
+        )
+    } ?: if (source.player == null) somethingWentWrongCliMessage() else source.sendFeedback(
+        somethingWentWrongChatMessage(), false
+    )
+
     return Command.SINGLE_SUCCESS
 }
 
-private fun CommandContext<ServerCommandSource>.enableUpdateOnStartUp(): Int {
-    when (BoolArgumentType.getBool(this, "enable")) {
-        true -> ConfigManager.enableUpdateOnStartUp()
-        false -> ConfigManager.disableUpdateOnStartUp()
-    }
+private fun CommandContext<ServerCommandSource>.executeEnableUpdateOnStartUp(): Int {
+    val enable = BoolArgumentType.getBool(this, "enable")
+
+    ConfigManager.changeUpdateOnStartUp(enable)
+
+    if (source.player == null) enableUpdateOnStartUpCliMessage(enable) else source.sendFeedback(
+        enableUpdateOnStartUpChatMessage(enable), false
+    )
+
     return Command.SINGLE_SUCCESS
 }

@@ -32,15 +32,9 @@ object ConfigManager {
         return gson.fromJson(configFile.readText(), Config::class.java).updateOnStartup
     }
 
-    fun enableUpdateOnStartUp() {
+    fun changeUpdateOnStartUp(enable: Boolean) {
         gson.fromJson(configFile.readText(), Config::class.java).apply {
-            updateOnStartup = true
-        }.write()
-    }
-
-    fun disableUpdateOnStartUp() {
-        gson.fromJson(configFile.readText(), Config::class.java).apply {
-            updateOnStartup = false
+            updateOnStartup = enable
         }.write()
     }
 

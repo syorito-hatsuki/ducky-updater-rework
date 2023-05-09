@@ -46,16 +46,34 @@ fun MutableText.updateListChatMessage(): MutableText {
     return this
 }
 
-fun MutableText.updateStatusChatMessage(modId: String, status: Int): MutableText {
-    return when (status) {
-        0 -> Text.literal("Can't update $modId, please check logs!")
-            .formatted(Formatting.RED)
-            .formatted(Formatting.BOLD)
+fun updateStatusChatMessage(modId: String, status: Int): MutableText = when (status) {
+    0 -> Text.literal("Can't update $modId, please check logs!")
+        .formatted(Formatting.RED)
+        .formatted(Formatting.BOLD)
 
-        1 -> Text.literal("$modId updated successful")
-            .formatted(Formatting.GREEN)
-            .formatted(Formatting.BOLD)
+    1 -> Text.literal("$modId updated successful")
+        .formatted(Formatting.GREEN)
+        .formatted(Formatting.BOLD)
 
-        else -> this
-    }
+    else -> somethingWentWrongChatMessage()
 }
+
+fun enableUpdateOnStartUpChatMessage(enable: Boolean): MutableText = when (enable) {
+    true -> Text.literal("Update on startup enabled")
+        .formatted(Formatting.GREEN)
+        .formatted(Formatting.BOLD)
+
+    false -> Text.literal("Update on startup disabled")
+        .formatted(Formatting.RED)
+        .formatted(Formatting.BOLD)
+
+}
+
+fun somethingWentWrongChatMessage(): MutableText = Text.literal("Something went wrong :(")
+    .formatted(Formatting.RED)
+    .formatted(Formatting.BOLD)
+
+fun ignoreUpdateChatMessage(modId: String, version: String): MutableText =
+    Text.literal("$modId update $version added to ignore")
+        .formatted(Formatting.GREEN)
+        .formatted(Formatting.BOLD)

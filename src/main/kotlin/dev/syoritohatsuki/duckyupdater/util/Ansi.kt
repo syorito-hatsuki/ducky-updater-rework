@@ -17,6 +17,10 @@ private const val MOD_UPDATE =
     "\t- {} $GRAY[$BRIGHT_GRAY{}$BRIGHT_RED{}$GRAY -> $BRIGHT_GRAY{}$BRIGHT_GREEN{}$GRAY]$RESET"
 private const val UPDATE_SUCCESS = "$BOLD$BRIGHT_GREEN{} successful updated$RESET"
 private const val UPDATE_FAILED = "$BOLD${BRIGHT_RED}Can't update {}, please check logs!$RESET"
+private const val UPDATE_ON_START_DISABLED = "$BOLD${BRIGHT_RED}Update on startup disabled$RESET"
+private const val UPDATE_ON_START_ENABLED = "$BOLD${BRIGHT_GREEN}Update on startup enabled$RESET"
+private const val SOMETHING_WENT_WRONG = "$BOLD${BRIGHT_RED}Something went wrong :($RESET"
+private const val IGNORE_UPDATE = "$BOLD$BRIGHT_GREEN{} update {} added to ignore$RESET"
 
 fun DuckyUpdater.updateListCliMessage() {
     val firstLine = AtomicBoolean(true)
@@ -40,9 +44,17 @@ fun DuckyUpdater.updateListCliMessage() {
     if (!firstLine.get()) logger.info("")
 }
 
-fun updateStatusCliMessage(modId: String, status: Int) {
-    when (status) {
-        0 -> logger.info(UPDATE_FAILED, modId)
-        1 -> logger.info(UPDATE_SUCCESS, modId)
-    }
+fun updateStatusCliMessage(modId: String, status: Int) = when (status) {
+    0 -> logger.info(UPDATE_FAILED, modId)
+    1 -> logger.info(UPDATE_SUCCESS, modId)
+    else -> logger.info(SOMETHING_WENT_WRONG)
 }
+
+fun enableUpdateOnStartUpCliMessage(enable: Boolean) = when (enable) {
+    true -> logger.info(UPDATE_ON_START_DISABLED)
+    false -> logger.info(UPDATE_ON_START_ENABLED)
+}
+
+fun somethingWentWrongCliMessage() = logger.info(SOMETHING_WENT_WRONG)
+
+fun ignoreUpdateCliMessage(modId: String, version: String) = logger.info(IGNORE_UPDATE, modId, version)
