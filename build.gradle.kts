@@ -1,5 +1,5 @@
-import java.time.format.DateTimeFormatter
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     id("fabric-loom")
@@ -14,9 +14,10 @@ base {
 
 val javaVersion = JavaVersion.VERSION_17
 val loaderVersion: String by project
+val minecraftVersion: String by project
 
 val modVersion: String by project
-version = "${DateTimeFormatter.ofPattern("yyyy.MM").format(LocalDateTime.now())}.$modVersion"
+version = "${DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())}.$modVersion-$minecraftVersion"
 
 val mavenGroup: String by project
 group = mavenGroup
@@ -26,7 +27,6 @@ repositories {
 }
 
 dependencies {
-    val minecraftVersion: String by project
     minecraft("com.mojang", "minecraft", minecraftVersion)
 
     val yarnMappings: String by project

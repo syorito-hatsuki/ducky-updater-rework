@@ -63,22 +63,13 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
 private fun CommandContext<ServerCommandSource>.executeUpdate(): Int {
     val modId = StringArgumentType.getString(this, "modId")
 
-    updateByModId(modId).let {
-        if (source.player == null) updateStatusCliMessage(modId, it) else source.sendFeedback(
-            updateStatusChatMessage(modId, it), false
-        )
-    }
+    updateByModId(modId, source)
 
     return Command.SINGLE_SUCCESS
 }
 
 private fun CommandContext<ServerCommandSource>.executeUpdateAll(): Int {
-    updateAll().forEach {
-        if (source.player == null) updateStatusCliMessage(it.key, it.value) else source.sendFeedback(
-            updateStatusChatMessage(it.key, it.value), false
-        )
-    }
-
+    updateAll(source)
     return Command.SINGLE_SUCCESS
 }
 
@@ -91,8 +82,8 @@ private fun CommandContext<ServerCommandSource>.executeIgnoreUpdate(): Int {
         if (source.player == null) ignoreUpdateCliMessage(it.modId, version) else source.sendFeedback(
             ignoreUpdateChatMessage(it.modId, version), false
         )
-    } ?: if (source.player == null) somethingWentWrongCliMessage() else source.sendFeedback(
-        somethingWentWrongChatMessage(), false
+    } ?: if (source.player == null) nothingToIgnoreCliMessage() else source.sendFeedback(
+        nothingToIgnoreChatMessage(), false
     )
 
     return Command.SINGLE_SUCCESS

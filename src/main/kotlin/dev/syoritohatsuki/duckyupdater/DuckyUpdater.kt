@@ -3,16 +3,20 @@ package dev.syoritohatsuki.duckyupdater
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import com.google.gson.FieldNamingPolicy
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
-import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import dev.syoritohatsuki.duckyupdater.dto.LatestVersionsFromHashesBody
 import dev.syoritohatsuki.duckyupdater.dto.UpdateVersions
 import dev.syoritohatsuki.duckyupdater.util.ConfigManager
 import dev.syoritohatsuki.duckyupdater.util.UpdateList
+import dev.syoritohatsuki.duckyupdater.util.updateStatusChatMessage
+import dev.syoritohatsuki.duckyupdater.util.updateStatusCliMessage
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModOrigin
+import net.minecraft.server.command.ServerCommandSource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -26,9 +30,6 @@ import java.net.http.HttpResponse
 import java.nio.channels.Channels
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.Callable
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import kotlin.jvm.optionals.getOrNull
 
 object DuckyUpdater {
@@ -39,7 +40,7 @@ object DuckyUpdater {
 
     private val userAgent = "syorito-hatsuki/ducky-updater/${
         FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()!!.metadata.version.friendlyString
-            ?: DateTimeFormatter.ofPattern("yyyy.MM").format(LocalDateTime.now())
+            ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
     } (syorito-hatsuki.dev)"
 
 
@@ -71,35 +72,44 @@ object DuckyUpdater {
         }
     }
 
-    fun updateByModId(modId: String): Int = UpdateList.getUpdates().first { it.modId == modId }.let {
-        return downloadAsync(it)
-    }
+    fun updateByModId(modId: String, source: ServerCommandSource) =
+        UpdateList.getUpdates().first { it.modId == modId }.let {
+            downloadAsync(it, source)
+        }
 
-    fun updateAll(): Map<String, Int> = mutableMapOf<String, Int>().apply {
+    fun updateAll(source: ServerCommandSource?) {
         UpdateList.getUpdates().forEach {
             if (!ConfigManager.isIgnoredVersion(it.modId, "${it.versions.matched}${it.versions.newVersion}"))
-                put(it.modId, downloadAsync(it))
+                downloadAsync(it, source)
         }
     }
 
-    private fun downloadAsync(updateVersions: UpdateVersions): Int {
-        val executor = Executors.newSingleThreadExecutor()
-        val future: Future<Int> = executor.submit(Callable {
+    private fun downloadAsync(updateVersions: UpdateVersions, source: ServerCommandSource?) {
+        Thread {
+
+            var status = 1
+
             try {
                 FileOutputStream(File(updateVersions.modPath.parent.toFile(), updateVersions.remoteFileName))
                     .channel.transferFrom(Channels.newChannel(URL(updateVersions.url).openStream()), 0, Long.MAX_VALUE)
+                logger.info("Start download")
             } catch (e: Exception) {
+                logger.info("Download failed")
                 File(updateVersions.modPath.parent.toFile(), updateVersions.remoteFileName).delete()
                 logger.warn(e.stackTraceToString())
-                return@Callable 0
+                status = 0
             }
-            if (!updateVersions.modPath.fileName.endsWith(updateVersions.remoteFileName))
-                updateVersions.modPath.toFile().delete()
-            UpdateList.markAsUpdated(updateVersions)
-            return@Callable 1
-        })
-        executor.shutdown()
-        return future.get()
+            logger.info("Download end")
+
+            if (status == 1) {
+                if (!updateVersions.modPath.fileName.endsWith(updateVersions.remoteFileName))
+                    updateVersions.modPath.toFile().delete()
+                UpdateList.markAsUpdated(updateVersions)
+            }
+
+            if (source == null || source.player == null) updateStatusCliMessage(updateVersions.modId, status)
+            else source.sendFeedback(updateStatusChatMessage(updateVersions.modId, status), false)
+        }.start()
     }
 
     private fun hashMods() = FabricLoader.getInstance().allMods.forEach { modContainer ->
@@ -121,7 +131,7 @@ object DuckyUpdater {
         return null
     }
 
-    private fun requestUpdatesFromApi(): MutableMap<String, JsonElement> = JsonParser.parseString(
+    private fun requestUpdatesFromApi(): Map<String, JsonElement> = Gson().fromJson(
         HttpClient.newHttpClient().send(
             HttpRequest.newBuilder().POST(
                 HttpRequest.BodyPublishers.ofString(
@@ -131,6 +141,6 @@ object DuckyUpdater {
             ).header("User-Agent", userAgent).header("Content-Type", "application/json")
                 .uri(URI.create("https://api.modrinth.com/v2/version_files/update")).build(),
             HttpResponse.BodyHandlers.ofString()
-        ).body()
-    ).asJsonObject.asMap()
+        ).body(), object : TypeToken<Map<String, JsonElement>>() {}.type
+    )
 }

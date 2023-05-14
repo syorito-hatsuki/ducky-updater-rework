@@ -21,6 +21,7 @@ private const val UPDATE_ON_START_ENABLED = "$BOLD${BRIGHT_GREEN}Update on start
 private const val SOMETHING_WENT_WRONG = "$BOLD${BRIGHT_RED}Something went wrong :($RESET"
 private const val IGNORE_UPDATE = "$BOLD$BRIGHT_GREEN{} update {} added to ignore$RESET"
 private const val ALL_UP_TO_DATE = "$BOLD${BRIGHT_GREEN}All mods up-to-date"
+private const val NOTHING_TO_IGNORE = "$BOLD${BRIGHT_RED}Update not found for ignoring"
 
 fun DuckyUpdater.updateListCliMessage() {
 
@@ -59,3 +60,5 @@ fun enableUpdateOnStartUpCliMessage(enable: Boolean) = when (enable) {
 fun somethingWentWrongCliMessage() = logger.info(SOMETHING_WENT_WRONG)
 
 fun ignoreUpdateCliMessage(modId: String, version: String) = logger.info(IGNORE_UPDATE, modId, version)
+
+fun nothingToIgnoreCliMessage() = logger.info(NOTHING_TO_IGNORE)

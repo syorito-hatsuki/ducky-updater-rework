@@ -80,3 +80,8 @@ fun ignoreUpdateChatMessage(modId: String, version: String): MutableText =
     Text.literal("$modId update $version added to ignore")
         .formatted(Formatting.GREEN)
         .formatted(Formatting.BOLD)
+
+fun nothingToIgnoreChatMessage(): MutableText =
+    Text.literal("Update not found for ignoring")
+        .formatted(Formatting.RED)
+        .formatted(Formatting.BOLD)
