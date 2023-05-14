@@ -1,6 +1,5 @@
 package dev.syoritohatsuki.duckyupdater.util
 
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateVersions
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
@@ -8,18 +7,22 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
 fun MutableText.updateListChatMessage(): MutableText {
-    var firstLine = true
+
+    val updateVersions = UpdateList.getUpdates()
+
+    if (updateVersions.isEmpty()) return this.append(
+        Text.literal("All mods up-to-date")
+            .formatted(Formatting.GREEN)
+            .formatted(Formatting.BOLD)
+    )
+
+    append(
+        Text.literal("Updates available")
+            .formatted(Formatting.YELLOW)
+            .formatted(Formatting.BOLD)
+    )
+
     updateVersions.forEach {
-
-        if (firstLine) {
-            append(
-                Text.literal("Updates available")
-                    .formatted(Formatting.YELLOW)
-                    .formatted(Formatting.BOLD)
-            )
-            firstLine = false
-        }
-
         append(
             Text.literal("\n - ${it.modName} ")
                 .append(Text.literal("[").formatted(Formatting.DARK_GRAY))

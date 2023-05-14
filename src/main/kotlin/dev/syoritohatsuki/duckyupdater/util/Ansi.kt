@@ -2,7 +2,6 @@ package dev.syoritohatsuki.duckyupdater.util
 
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.logger
-import java.util.concurrent.atomic.AtomicBoolean
 
 private const val BOLD = "\u001B[1m"
 private const val BRIGHT_GRAY = "\u001B[37m"
@@ -21,16 +20,18 @@ private const val UPDATE_ON_START_DISABLED = "$BOLD${BRIGHT_RED}Update on startu
 private const val UPDATE_ON_START_ENABLED = "$BOLD${BRIGHT_GREEN}Update on startup enabled$RESET"
 private const val SOMETHING_WENT_WRONG = "$BOLD${BRIGHT_RED}Something went wrong :($RESET"
 private const val IGNORE_UPDATE = "$BOLD$BRIGHT_GREEN{} update {} added to ignore$RESET"
+private const val ALL_UP_TO_DATE = "$BOLD${BRIGHT_GREEN}All mods up-to-date"
 
 fun DuckyUpdater.updateListCliMessage() {
-    val firstLine = AtomicBoolean(true)
+
+    val updateVersions = UpdateList.getUpdates()
+
+    if (updateVersions.isEmpty()) return logger.info(ALL_UP_TO_DATE)
+
+    logger.info("")
+    logger.info(UPDATE_AVAILABLE)
 
     updateVersions.forEach { (_, modName, _, _, _, _, versions) ->
-        if (firstLine.get()) {
-            logger.info("")
-            logger.info(UPDATE_AVAILABLE)
-            firstLine.set(false)
-        }
         logger.info(
             MOD_UPDATE,
             modName,
@@ -41,7 +42,7 @@ fun DuckyUpdater.updateListCliMessage() {
         )
     }
 
-    if (!firstLine.get()) logger.info("")
+    logger.info("")
 }
 
 fun updateStatusCliMessage(modId: String, status: Int) = when (status) {

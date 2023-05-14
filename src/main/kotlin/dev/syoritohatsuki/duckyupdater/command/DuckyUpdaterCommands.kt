@@ -11,7 +11,6 @@ import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.checkForUpdate
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateAll
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateByModId
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateVersions
 import dev.syoritohatsuki.duckyupdater.util.*
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
@@ -22,6 +21,7 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
     listOf("du", MOD_ID).forEach { rootLiteral ->
         register(
             LiteralArgumentBuilder.literal<ServerCommandSource>(rootLiteral)
+                .executes { it.executeListAvailableUpdates() }
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource>("check-for-updates")
                     .executes { it.executeCheckForUpdates() })
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource?>("update-on-startup").then(
@@ -39,6 +39,14 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
                 ))
         )
     }
+}
+
+private fun CommandContext<ServerCommandSource>.executeListAvailableUpdates(): Int {
+    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback(
+        MutableText.of(TextContent.EMPTY).updateListChatMessage(), false
+    )
+
+    return Command.SINGLE_SUCCESS
 }
 
 private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
@@ -75,7 +83,7 @@ private fun CommandContext<ServerCommandSource>.executeUpdateAll(): Int {
 }
 
 private fun CommandContext<ServerCommandSource>.executeIgnoreUpdate(): Int {
-    updateVersions.find { it.modId == StringArgumentType.getString(this, "modId") }?.let {
+    UpdateList.getUpdates().find { it.modId == StringArgumentType.getString(this, "modId") }?.let {
         val version = "${it.versions.matched}${it.versions.newVersion}"
 
         ConfigManager.addVersionToIgnore(it.modId, version)

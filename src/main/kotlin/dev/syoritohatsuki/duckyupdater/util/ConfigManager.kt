@@ -1,6 +1,7 @@
 package dev.syoritohatsuki.duckyupdater.util
 
 import com.google.gson.GsonBuilder
+import dev.syoritohatsuki.duckyupdater.DuckyUpdater
 import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
 import java.io.File
 import java.nio.file.Paths
@@ -17,10 +18,15 @@ object ConfigManager {
         if (!configFile.exists()) configFile.writeText(gson.toJson(Config()))
     }
 
-    fun isIgnoredVersion(modId: String, version: String): Boolean {
-        val config = gson.fromJson(configFile.readText(), Config::class.java)
-        return config.ignoreUpdate[modId] == version
+    fun getIgnored(): MutableMap<String, String> {
+        configFile.readText().apply {
+            DuckyUpdater.logger.info("FileIO: $this")
+            return gson.fromJson(this, Config::class.java).ignoreUpdate
+        }
     }
+
+    fun isIgnoredVersion(modId: String, version: String): Boolean =
+        gson.fromJson(configFile.readText(), Config::class.java).ignoreUpdate[modId] == version
 
     fun addVersionToIgnore(modId: String, version: String) {
         gson.fromJson(configFile.readText(), Config::class.java).apply {
