@@ -49,7 +49,7 @@ fun DuckyUpdater.updateListCliMessage() {
 fun updateStatusCliMessage(modId: String, status: Int) = when (status) {
     0 -> logger.info(UPDATE_FAILED, modId)
     1 -> logger.info(UPDATE_SUCCESS, modId)
-    else -> logger.info(SOMETHING_WENT_WRONG)
+    else -> somethingWentWrongCliMessage()
 }
 
 fun enableUpdateOnStartUpCliMessage(enable: Boolean) = when (enable) {
