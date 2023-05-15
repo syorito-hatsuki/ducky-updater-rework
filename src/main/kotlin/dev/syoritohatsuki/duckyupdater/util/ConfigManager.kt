@@ -39,10 +39,13 @@ object ConfigManager {
         }.write()
     }
 
+    fun getThreadCount(): Int = gson.fromJson(configFile.readText(), Config::class.java).threadCount
+
     private fun Config.write() = configFile.writeText(gson.toJson(this))
 
     data class Config(
         var updateOnStartup: Boolean = false,
+        val threadCount: Int = 4,
         val ignoreUpdate: MutableMap<String, String> = mutableMapOf()
     )
 }

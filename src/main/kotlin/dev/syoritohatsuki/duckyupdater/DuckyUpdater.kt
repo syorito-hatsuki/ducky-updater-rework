@@ -30,6 +30,8 @@ import java.net.http.HttpResponse
 import java.nio.channels.Channels
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.jvm.optionals.getOrNull
 
 object DuckyUpdater {
@@ -37,6 +39,7 @@ object DuckyUpdater {
     const val MOD_ID = "ducky-updater"
 
     val logger: Logger = LoggerFactory.getLogger(javaClass.simpleName)
+    private val executor: ExecutorService = Executors.newFixedThreadPool(ConfigManager.getThreadCount())
 
     private val userAgent = "syorito-hatsuki/ducky-updater/${
         FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()!!.metadata.version.friendlyString
@@ -85,21 +88,17 @@ object DuckyUpdater {
     }
 
     private fun downloadAsync(updateVersions: UpdateVersions, source: ServerCommandSource?) {
-        Thread {
-
+        executor.submit {
             var status = 1
 
             try {
                 FileOutputStream(File(updateVersions.modPath.parent.toFile(), updateVersions.remoteFileName))
                     .channel.transferFrom(Channels.newChannel(URL(updateVersions.url).openStream()), 0, Long.MAX_VALUE)
-                logger.info("Start download")
             } catch (e: Exception) {
-                logger.info("Download failed")
                 File(updateVersions.modPath.parent.toFile(), updateVersions.remoteFileName).delete()
                 logger.warn(e.stackTraceToString())
                 status = 0
             }
-            logger.info("Download end")
 
             if (status == 1) {
                 if (!updateVersions.modPath.fileName.endsWith(updateVersions.remoteFileName))
@@ -109,7 +108,7 @@ object DuckyUpdater {
 
             if (source == null || source.player == null) updateStatusCliMessage(updateVersions.modId, status)
             else source.sendFeedback(updateStatusChatMessage(updateVersions.modId, status), false)
-        }.start()
+        }
     }
 
     private fun hashMods() = FabricLoader.getInstance().allMods.forEach { modContainer ->
