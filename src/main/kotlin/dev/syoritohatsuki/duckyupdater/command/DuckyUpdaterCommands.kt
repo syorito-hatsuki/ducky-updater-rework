@@ -20,8 +20,9 @@ import net.minecraft.text.TextContent
 fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
     listOf("du", MOD_ID).forEach { rootLiteral ->
         register(
-            LiteralArgumentBuilder.literal<ServerCommandSource>(rootLiteral)
-                .executes { it.executeListAvailableUpdates() }
+            LiteralArgumentBuilder.literal<ServerCommandSource>(rootLiteral).requires {
+                it.hasPermissionLevel(4)
+            }.executes { it.executeListAvailableUpdates() }
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource>("check-for-updates")
                     .executes { it.executeCheckForUpdates() })
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource?>("update-on-startup").then(
@@ -31,7 +32,8 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
                 .then(LiteralArgumentBuilder.literal<ServerCommandSource>("update").then(
                     CommandManager.argument("modId", StringArgumentType.word())
                         .executes { it.executeUpdate() }
-                ).then(LiteralArgumentBuilder.literal<ServerCommandSource?>("all")
+                ).then(
+                    LiteralArgumentBuilder.literal<ServerCommandSource?>("all")
                     .executes { it.executeUpdateAll() }
                 )).then(LiteralArgumentBuilder.literal<ServerCommandSource?>("ignore").then(
                     CommandManager.argument("modId", StringArgumentType.word())
@@ -82,6 +84,7 @@ private fun CommandContext<ServerCommandSource>.executeIgnoreUpdate(): Int {
         if (source.player == null) ignoreUpdateCliMessage(it.modId, version) else source.sendFeedback(
             ignoreUpdateChatMessage(it.modId, version), false
         )
+
     } ?: if (source.player == null) nothingToIgnoreCliMessage() else source.sendFeedback(
         nothingToIgnoreChatMessage(), false
     )
