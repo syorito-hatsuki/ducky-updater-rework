@@ -9,6 +9,7 @@
   "contact": {
     "homepage": "https://syorito-hatsuki.dev/"
   },
+  "icon": "assets/duckyupdater/icon.png",
   "license": "MIT Licence",
   "environment": "*",
   "mixins": [
