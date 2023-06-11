@@ -6,12 +6,8 @@
     "defaultRequire": 1
   },
   "server": [
-    "MinecraftServerMixin"
-  ],
-  "client": [
-  ],
-  "mixins": [
     "BootstrapMixin",
-    "CommandManagerMixin"
+    "CommandManagerMixin",
+    "MinecraftServerMixin"
   ]
 }

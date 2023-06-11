@@ -11,7 +11,7 @@
   },
   "icon": "assets/duckyupdater/icon.png",
   "license": "MIT Licence",
-  "environment": "*",
+  "environment": "server",
   "mixins": [
     "duckyupdater.mixins.json"
   ],
@@ -26,7 +26,7 @@
   },
   "depends": {
     "fabricloader": ">=${loaderVersion}",
-    "minecraft": ">=1.19",
+    "minecraft": ">=1.20",
     "java": ">=${javaVersion}"
   },
   "recommends": {

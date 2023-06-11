@@ -107,7 +107,9 @@ object DuckyUpdater {
             }
 
             if (source == null || source.player == null) updateStatusCliMessage(updateVersions.modId, status)
-            else source.sendFeedback(updateStatusChatMessage(updateVersions.modId, status), false)
+            else source.sendFeedback({
+                updateStatusChatMessage(updateVersions.modId, status)
+            }, false)
         }
     }
 

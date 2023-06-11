@@ -34,7 +34,7 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
                         .executes { it.executeUpdate() }
                 ).then(
                     LiteralArgumentBuilder.literal<ServerCommandSource?>("all")
-                    .executes { it.executeUpdateAll() }
+                        .executes { it.executeUpdateAll() }
                 )).then(LiteralArgumentBuilder.literal<ServerCommandSource?>("ignore").then(
                     CommandManager.argument("modId", StringArgumentType.word())
                         .executes { it.executeIgnoreUpdate() }
@@ -44,9 +44,9 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
 }
 
 private fun CommandContext<ServerCommandSource>.executeListAvailableUpdates(): Int {
-    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback(
-        MutableText.of(TextContent.EMPTY).updateListChatMessage(), false
-    )
+    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback({
+        MutableText.of(TextContent.EMPTY).updateListChatMessage()
+    }, false)
 
     return Command.SINGLE_SUCCESS
 }
@@ -55,9 +55,9 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
 
     checkForUpdate()
 
-    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback(
-        MutableText.of(TextContent.EMPTY).updateListChatMessage(), false
-    )
+    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback({
+        MutableText.of(TextContent.EMPTY).updateListChatMessage()
+    }, false)
 
     return Command.SINGLE_SUCCESS
 }
@@ -81,13 +81,13 @@ private fun CommandContext<ServerCommandSource>.executeIgnoreUpdate(): Int {
 
         ConfigManager.addVersionToIgnore(it.modId, version)
 
-        if (source.player == null) ignoreUpdateCliMessage(it.modId, version) else source.sendFeedback(
-            ignoreUpdateChatMessage(it.modId, version), false
-        )
+        if (source.player == null) ignoreUpdateCliMessage(it.modId, version) else source.sendFeedback({
+            ignoreUpdateChatMessage(it.modId, version)
+        }, false)
 
-    } ?: if (source.player == null) nothingToIgnoreCliMessage() else source.sendFeedback(
-        nothingToIgnoreChatMessage(), false
-    )
+    } ?: if (source.player == null) nothingToIgnoreCliMessage() else source.sendFeedback({
+        nothingToIgnoreChatMessage()
+    }, false)
 
     return Command.SINGLE_SUCCESS
 }
@@ -97,9 +97,9 @@ private fun CommandContext<ServerCommandSource>.executeEnableUpdateOnStartUp(): 
 
     ConfigManager.changeUpdateOnStartUp(enable)
 
-    if (source.player == null) enableUpdateOnStartUpCliMessage(enable) else source.sendFeedback(
-        enableUpdateOnStartUpChatMessage(enable), false
-    )
+    if (source.player == null) enableUpdateOnStartUpCliMessage(enable) else source.sendFeedback({
+        enableUpdateOnStartUpChatMessage(enable)
+    }, false)
 
     return Command.SINGLE_SUCCESS
 }
