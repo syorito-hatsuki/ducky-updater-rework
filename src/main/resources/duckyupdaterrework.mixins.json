@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "dev.syoritohatsuki.duckyupdater.mixin",
+  "package": "dev.syoritohatsuki.duckyupdaterrework.mixin",
   "compatibilityLevel": "JAVA_17",
   "injectors": {
     "defaultRequire": 1

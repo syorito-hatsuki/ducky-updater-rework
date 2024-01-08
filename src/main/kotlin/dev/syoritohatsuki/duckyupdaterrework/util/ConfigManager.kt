@@ -1,7 +1,7 @@
-package dev.syoritohatsuki.duckyupdater.util
+package dev.syoritohatsuki.duckyupdaterrework.util
 
 import com.google.gson.GsonBuilder
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
 import java.io.File
 import java.nio.file.Paths
 

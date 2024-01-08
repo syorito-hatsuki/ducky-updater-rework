@@ -1,19 +1,19 @@
-package dev.syoritohatsuki.duckyupdater.mixin;
+package dev.syoritohatsuki.duckyupdaterrework.mixin;
 
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater;
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork;
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static dev.syoritohatsuki.duckyupdater.util.AnsiKt.updateListCliMessage;
+import static dev.syoritohatsuki.duckyupdaterrework.util.AnsiKt.updateListCliMessage;
 
 @Mixin(MinecraftServer.class)
 public abstract class MinecraftServerMixin {
 
     @Inject(method = "loadWorld", at = @At("TAIL"))
     private void checkUpdates(CallbackInfo ci) {
-        updateListCliMessage(DuckyUpdater.INSTANCE);
+        updateListCliMessage(DuckyUpdaterReWork.INSTANCE);
     }
 }

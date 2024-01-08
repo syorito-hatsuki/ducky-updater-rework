@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdater
+package dev.syoritohatsuki.duckyupdaterrework
 
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
@@ -7,12 +7,12 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
-import dev.syoritohatsuki.duckyupdater.dto.LatestVersionsFromHashesBody
-import dev.syoritohatsuki.duckyupdater.dto.UpdateVersions
-import dev.syoritohatsuki.duckyupdater.util.ConfigManager
-import dev.syoritohatsuki.duckyupdater.util.UpdateList
-import dev.syoritohatsuki.duckyupdater.util.updateStatusChatMessage
-import dev.syoritohatsuki.duckyupdater.util.updateStatusCliMessage
+import dev.syoritohatsuki.duckyupdaterrework.dto.LatestVersionsFromHashesBody
+import dev.syoritohatsuki.duckyupdaterrework.dto.UpdateVersions
+import dev.syoritohatsuki.duckyupdaterrework.util.ConfigManager
+import dev.syoritohatsuki.duckyupdaterrework.util.UpdateList
+import dev.syoritohatsuki.duckyupdaterrework.util.updateStatusChatMessage
+import dev.syoritohatsuki.duckyupdaterrework.util.updateStatusCliMessage
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModOrigin
@@ -34,14 +34,14 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.jvm.optionals.getOrNull
 
-object DuckyUpdater {
+object DuckyUpdaterReWork {
 
-    const val MOD_ID = "ducky-updater"
+    const val MOD_ID = "ducky-updater-rework"
 
     val logger: Logger = LoggerFactory.getLogger(javaClass.simpleName)
     private val executor: ExecutorService = Executors.newFixedThreadPool(ConfigManager.getThreadCount())
 
-    private val userAgent = "syorito-hatsuki/ducky-updater/${
+    private val userAgent = "syorito-hatsuki/ducky-updater-rework/${
         FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()!!.metadata.version.friendlyString
             ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
     } (syorito-hatsuki.dev)"

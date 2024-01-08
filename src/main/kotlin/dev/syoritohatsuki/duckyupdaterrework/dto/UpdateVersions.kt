@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdater.dto
+package dev.syoritohatsuki.duckyupdaterrework.dto
 
 import java.nio.file.Path
 

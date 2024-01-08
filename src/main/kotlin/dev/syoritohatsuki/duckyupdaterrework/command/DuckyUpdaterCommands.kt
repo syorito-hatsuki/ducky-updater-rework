@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdater.command
+package dev.syoritohatsuki.duckyupdaterrework.command
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -6,12 +6,12 @@ import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.MOD_ID
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.checkForUpdate
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateAll
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.updateByModId
-import dev.syoritohatsuki.duckyupdater.util.*
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.checkForUpdate
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.updateAll
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.updateByModId
+import dev.syoritohatsuki.duckyupdaterrework.util.*
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.MutableText
@@ -44,7 +44,7 @@ fun CommandDispatcher<ServerCommandSource>.serverSideCommands() {
 }
 
 private fun CommandContext<ServerCommandSource>.executeListAvailableUpdates(): Int {
-    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback({
+    if (source.player == null) DuckyUpdaterReWork.updateListCliMessage() else source.sendFeedback({
         MutableText.of(TextContent.EMPTY).updateListChatMessage()
     }, false)
 
@@ -55,7 +55,7 @@ private fun CommandContext<ServerCommandSource>.executeCheckForUpdates(): Int {
 
     checkForUpdate()
 
-    if (source.player == null) DuckyUpdater.updateListCliMessage() else source.sendFeedback({
+    if (source.player == null) DuckyUpdaterReWork.updateListCliMessage() else source.sendFeedback({
         MutableText.of(TextContent.EMPTY).updateListChatMessage()
     }, false)
 

@@ -1,7 +1,7 @@
-package dev.syoritohatsuki.duckyupdater.util
+package dev.syoritohatsuki.duckyupdaterrework.util
 
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater.logger
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.logger
 
 private const val BOLD = "\u001B[1m"
 private const val BRIGHT_GRAY = "\u001B[37m"
@@ -23,7 +23,7 @@ private const val IGNORE_UPDATE = "$BOLD$BRIGHT_GREEN{} update {} added to ignor
 private const val ALL_UP_TO_DATE = "$BOLD${BRIGHT_GREEN}All mods up-to-date"
 private const val NOTHING_TO_IGNORE = "$BOLD${BRIGHT_RED}Update not found for ignoring"
 
-fun DuckyUpdater.updateListCliMessage() {
+fun DuckyUpdaterReWork.updateListCliMessage() {
 
     val updateVersions = UpdateList.getUpdates()
 

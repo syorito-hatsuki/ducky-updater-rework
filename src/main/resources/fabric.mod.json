@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "ducky-updater",
+  "id": "ducky-updater-rework",
   "version": "${version}",
-  "name": "Ducky Updater",
+  "name": "Ducky Updater: ReWork",
   "authors": [
     "Syorito Hatsuki"
   ],
   "contact": {
     "homepage": "https://syorito-hatsuki.dev/"
   },
-  "icon": "assets/duckyupdater/icon.png",
+  "icon": "assets/duckyupdaterrework/icon.png",
   "license": "MIT Licence",
   "environment": "server",
   "mixins": [
-    "duckyupdater.mixins.json"
+    "duckyupdaterrework.mixins.json"
   ],
   "custom": {
     "mcb": [

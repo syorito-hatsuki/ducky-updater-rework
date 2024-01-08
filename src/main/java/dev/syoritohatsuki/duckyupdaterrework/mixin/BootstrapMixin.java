@@ -1,7 +1,7 @@
-package dev.syoritohatsuki.duckyupdater.mixin;
+package dev.syoritohatsuki.duckyupdaterrework.mixin;
 
-import dev.syoritohatsuki.duckyupdater.DuckyUpdater;
-import dev.syoritohatsuki.duckyupdater.util.ConfigManager;
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork;
+import dev.syoritohatsuki.duckyupdaterrework.util.ConfigManager;
 import net.minecraft.Bootstrap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,9 +13,9 @@ public abstract class BootstrapMixin {
     @Inject(method = "initialize", at = @At("HEAD"))
     private static void requestUpdates(CallbackInfo ci) {
         new Thread(() -> {
-            DuckyUpdater.INSTANCE.checkForUpdate();
+            DuckyUpdaterReWork.INSTANCE.checkForUpdate();
             if (ConfigManager.INSTANCE.isUpdateOnStartUpEnabled()) {
-                DuckyUpdater.INSTANCE.updateAll(null);
+                DuckyUpdaterReWork.INSTANCE.updateAll(null);
             }
         }).start();
     }
