@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.legacy.util
 
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent

@@ -1,7 +1,7 @@
-package dev.syoritohatsuki.duckyupdaterrework.mixin;
+package dev.syoritohatsuki.duckyupdaterrework.legacy.mixin;
 
-import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork;
-import dev.syoritohatsuki.duckyupdaterrework.util.ConfigManager;
+import dev.syoritohatsuki.duckyupdaterrework.legacy.DuckyUpdaterReWork;
+import dev.syoritohatsuki.duckyupdaterrework.legacy.util.ConfigManager;
 import net.minecraft.Bootstrap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

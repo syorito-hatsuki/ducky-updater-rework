@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.command
+package dev.syoritohatsuki.duckyupdaterrework.legacy.command
 
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -8,10 +8,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
-import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.checkForUpdate
-import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.updateAll
-import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.updateByModId
-import dev.syoritohatsuki.duckyupdaterrework.util.*
+import dev.syoritohatsuki.duckyupdaterrework.legacy.DuckyUpdaterReWork.checkForUpdate
+import dev.syoritohatsuki.duckyupdaterrework.legacy.DuckyUpdaterReWork.updateAll
+import dev.syoritohatsuki.duckyupdaterrework.legacy.DuckyUpdaterReWork.updateByModId
+import dev.syoritohatsuki.duckyupdaterrework.legacy.util.*
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.MutableText

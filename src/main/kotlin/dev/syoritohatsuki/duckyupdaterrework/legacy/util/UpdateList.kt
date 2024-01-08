@@ -1,6 +1,6 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.legacy.util
 
-import dev.syoritohatsuki.duckyupdaterrework.dto.UpdateVersions
+import dev.syoritohatsuki.duckyupdaterrework.legacy.dto.UpdateVersions
 import java.nio.file.Path
 
 object UpdateList {

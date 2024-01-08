@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.legacy.util
 
 import com.google.gson.GsonBuilder
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID

@@ -1,7 +1,7 @@
-package dev.syoritohatsuki.duckyupdaterrework.mixin;
+package dev.syoritohatsuki.duckyupdaterrework.legacy.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dev.syoritohatsuki.duckyupdaterrework.command.DuckyUpdaterCommandsKt;
+import dev.syoritohatsuki.duckyupdaterrework.legacy.command.DuckyUpdaterCommandsKt;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
