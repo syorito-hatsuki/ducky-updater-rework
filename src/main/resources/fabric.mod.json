@@ -15,6 +15,14 @@
   "mixins": [
     "duckyupdaterrework.mixins.json"
   ],
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork"
+      }
+    ]
+  },
   "custom": {
     "mcb": [
       {
@@ -25,7 +33,7 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=${loaderVersion}",
+    "fabricloader": "*",
     "minecraft": ">=1.20",
     "java": ">=${javaVersion}"
   },

@@ -34,7 +34,17 @@ dependencies {
 
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
+    val fabricKotlinVersion: String by project
+    modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+
     include(modImplementation("maven.modrinth", "modmenu-badges-lib", "hF72vnib"))
+
+    val ktorVersion: String by project
+    include(implementation("io.ktor", "ktor-client-core", ktorVersion))
+    include(implementation("io.ktor", "ktor-client-cio-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-client-cio", ktorVersion))
+    include(implementation("io.ktor", "ktor-client-content-negotiation", ktorVersion))
+    include(implementation("io.ktor", "ktor-serialization-kotlinx-json", ktorVersion))
 }
 
 tasks {
@@ -59,9 +69,7 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(
                 mutableMapOf(
-                    "version" to project.version,
-                    "loaderVersion" to loaderVersion,
-                    "javaVersion" to javaVersion.toString()
+                    "version" to project.version, "javaVersion" to javaVersion.toString()
                 )
             )
         }
