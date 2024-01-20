@@ -37,6 +37,9 @@ dependencies {
     val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
 
+    val fabricVersion: String by project
+    modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
+
     include(modImplementation("maven.modrinth", "modmenu-badges-lib", "hF72vnib"))
 
     val ktorVersion: String by project
@@ -82,5 +85,9 @@ tasks {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
         withSourcesJar()
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
