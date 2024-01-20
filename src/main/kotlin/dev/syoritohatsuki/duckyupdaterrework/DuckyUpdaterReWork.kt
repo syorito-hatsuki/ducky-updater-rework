@@ -16,8 +16,16 @@ object DuckyUpdaterReWork : ModInitializer {
 
     override fun onInitialize() {
         CoroutineScope(Dispatchers.IO).launch {
-            CommonDuckyUpdaterApi.getUpdate("fstats-api") {
-                logger.info(it?.changelog ?: "Is null :(")
+            CommonDuckyUpdaterApi.getUpdates { stringVersionMap ->
+                stringVersionMap?.values?.forEach { version ->
+                    logger.warn("------------------------")
+                    logger.warn(version.name)
+                    logger.warn("------------------------")
+                    version.changelog.split("\n").forEach {
+                        logger.warn(it)
+                    }
+                    logger.warn("------------------------")
+                }
             }
         }
     }

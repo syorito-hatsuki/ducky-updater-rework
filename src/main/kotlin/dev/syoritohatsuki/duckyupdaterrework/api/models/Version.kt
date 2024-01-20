@@ -4,7 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Project(
+data class Version(
+    val name: String,
     val changelog: String,
     @SerialName("date_published")
     val datePublished: String,

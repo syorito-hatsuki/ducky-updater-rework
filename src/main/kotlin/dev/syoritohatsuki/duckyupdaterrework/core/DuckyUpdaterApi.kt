@@ -1,10 +1,10 @@
 package dev.syoritohatsuki.duckyupdaterrework.core
 
-import dev.syoritohatsuki.duckyupdaterrework.api.models.Project
+import dev.syoritohatsuki.duckyupdaterrework.api.models.Version
 
 interface DuckyUpdaterApi {
-    fun getUpdates(result: (String?) -> Unit)
-    suspend fun getUpdate(modId: String, result: (Project?) -> Unit)
-    fun update(result: (Boolean) -> Unit)
-    fun ignoreUpdate(modId: String, result: (Boolean) -> Unit)
+    suspend fun getUpdates(result: (Map<String, Version>?) -> Unit)
+    suspend fun getUpdate(modId: String, result: (Version?) -> Unit)
+    suspend fun update(result: (Boolean) -> Unit)
+    suspend fun ignoreUpdate(modId: String, result: (Boolean) -> Unit)
 }

@@ -1,8 +1,8 @@
 package dev.syoritohatsuki.duckyupdaterrework.api
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
-import dev.syoritohatsuki.duckyupdaterrework.api.body.LatestVersionHash
-import dev.syoritohatsuki.duckyupdaterrework.api.models.Project
+import dev.syoritohatsuki.duckyupdaterrework.api.body.LatestVersionByHash
+import dev.syoritohatsuki.duckyupdaterrework.api.models.Version
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -38,7 +38,13 @@ object ModrinthApi {
         }
     }
 
-    suspend fun getLatestVersionFromHash(hash: String): Project = httpClient.post("version_file/${hash}/update") {
-        setBody(LatestVersionHash())
+    suspend fun getLatestVersionFromHash(hash: String): Version = httpClient.post("version_file/${hash}/update") {
+        parameter("algorithm", "sha512")
+        setBody(LatestVersionByHash())
+    }.body()
+
+    suspend fun getLatestVersionsFromHashes(hashes: List<String>): Map<String, Version> =
+        httpClient.post("version_files/update") {
+            setBody(LatestVersionByHash(hashes))
     }.body()
 }
