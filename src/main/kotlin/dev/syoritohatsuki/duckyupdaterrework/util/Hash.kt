@@ -24,4 +24,19 @@ object Hash {
 
         return null
     }
+
+    fun getSha512Hashes(): List<String> = mutableListOf<String>().apply {
+        FabricLoader.getInstance().allMods.forEach { container ->
+            if (container.containingMod.isEmpty && container.origin.kind == ModOrigin.Kind.PATH) container.origin.paths.stream()
+                .filter { path ->
+                    path.toString().lowercase().endsWith(".jar")
+                }.findFirst().getOrNull()?.toFile()?.let {
+                    if (it.isFile) try {
+                        add(Files.asByteSource(it).hash(Hashing.sha512()).toString())
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+        }
+    }
 }
