@@ -21,6 +21,18 @@
         "adapter": "kotlin",
         "value": "dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork"
       }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.syoritohatsuki.duckyupdaterrework.client.DuckyUpdaterReWorkClient"
+      }
+    ],
+    "server": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.syoritohatsuki.duckyupdaterrework.server.DuckyUpdaterReWorkServer"
+      }
     ]
   },
   "custom": {
