@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.api.models
+package dev.syoritohatsuki.duckyupdaterrework.core.api.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

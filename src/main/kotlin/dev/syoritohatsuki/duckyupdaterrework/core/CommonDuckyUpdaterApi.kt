@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.duckyupdaterrework.core
 
-import dev.syoritohatsuki.duckyupdaterrework.api.ModrinthApi
-import dev.syoritohatsuki.duckyupdaterrework.api.models.Version
+import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.util.Hash
 
 object CommonDuckyUpdaterApi : DuckyUpdaterApi {

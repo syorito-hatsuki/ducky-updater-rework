@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.api.body
+package dev.syoritohatsuki.duckyupdaterrework.core.api.body
 
 import kotlinx.serialization.Serializable
 import net.minecraft.SharedConstants

@@ -1,6 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.core
 
-import dev.syoritohatsuki.duckyupdaterrework.api.models.Version
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 
 interface DuckyUpdaterApi {
     suspend fun getUpdates(result: (Map<String, Version>?) -> Unit)

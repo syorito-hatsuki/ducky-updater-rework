@@ -1,8 +1,8 @@
-package dev.syoritohatsuki.duckyupdaterrework.api
+package dev.syoritohatsuki.duckyupdaterrework.core.api
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
-import dev.syoritohatsuki.duckyupdaterrework.api.body.LatestVersionByHash
-import dev.syoritohatsuki.duckyupdaterrework.api.models.Version
+import dev.syoritohatsuki.duckyupdaterrework.core.api.body.LatestVersionByHash
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -21,7 +21,7 @@ object ModrinthApi {
     private val modVersion: String =
         FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()!!.metadata.version.friendlyString
             ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
-    private val userAgent = "User-Agent: syorito-hatsuki/$MOD_ID/${modVersion} (launcher.com)"
+    private val userAgent = "User-Agent: syorito-hatsuki/$MOD_ID/$modVersion (launcher.com)"
 
     private val httpClient = HttpClient(CIO) {
         install(DefaultRequest) {
