@@ -17,8 +17,4 @@ object CommonDuckyUpdaterApi : DuckyUpdaterApi {
     override suspend fun update(result: (Boolean) -> Unit) {
         TODO("Not yet implemented")
     }
-
-    override suspend fun ignoreUpdate(modId: String, result: (Boolean) -> Unit) {
-        TODO("Not yet implemented")
-    }
 }
