@@ -1,14 +1,9 @@
 package dev.syoritohatsuki.duckyupdaterrework
 
-import dev.syoritohatsuki.duckyupdaterrework.core.command.UpdateCommand
 import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.ModsIdsArgumentType
-import dev.syoritohatsuki.duckyupdaterrework.util.argument
-import dev.syoritohatsuki.duckyupdaterrework.util.literal
-import dev.syoritohatsuki.duckyupdaterrework.util.register
-import dev.syoritohatsuki.duckyupdaterrework.util.rootLiteral
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.command.argument.serialize.ConstantArgumentSerializer
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
@@ -22,6 +17,7 @@ object DuckyUpdaterReWork : ModInitializer {
 
     val logger: Logger = LogManager.getLogger()
     val configDir: File = Paths.get("", "config", MOD_ID).toFile()
+    val modsIds: List<String> = FabricLoader.getInstance().allMods.map { it.metadata.id }
 
     override fun onInitialize() {
         logger.info("Loading common-side DURW")
@@ -31,17 +27,5 @@ object DuckyUpdaterReWork : ModInitializer {
             ModsIdsArgumentType::class.java,
             ConstantArgumentSerializer.of(ModsIdsArgumentType::modsIds)
         )
-
-        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
-            dispatcher.register {
-                rootLiteral("durw") {
-                    literal("update") {
-                        argument("modsIds", ModsIdsArgumentType.modsIds()) {
-                            executes(UpdateCommand::run)
-                        }
-                    }
-                }
-            }
-        }
     }
 }
