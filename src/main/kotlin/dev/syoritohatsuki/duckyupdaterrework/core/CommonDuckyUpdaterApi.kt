@@ -9,9 +9,12 @@ object CommonDuckyUpdaterApi : DuckyUpdaterApi {
         result(ModrinthApi.getLatestVersionsFromHashes(Hash.getSha512Hashes()))
     }
 
+    override suspend fun getUpdates(modsIds: List<String>, result: (Map<String, Version>?) -> Unit) {
+        result(ModrinthApi.getLatestVersionsFromHashes(Hash.getSha512Hashes(modsIds)))
+    }
+
     override suspend fun getUpdate(modId: String, result: (Version?) -> Unit) {
-        val hash = Hash.getSha512Hash(modId) ?: return result(null)
-        result(ModrinthApi.getLatestVersionFromHash(hash))
+        result(ModrinthApi.getLatestVersionFromHash(Hash.getSha512Hash(modId) ?: return result(null)))
     }
 
     override suspend fun update(result: (Boolean) -> Unit) {
