@@ -21,7 +21,7 @@ object ModrinthApi {
     private val modVersion: String =
         FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()!!.metadata.version.friendlyString
             ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
-    private val userAgent = "User-Agent: syorito-hatsuki/$MOD_ID/$modVersion (launcher.com)"
+    private val userAgent = "User-Agent: syorito-hatsuki/$MOD_ID/$modVersion (github.com/syorito-hatsuki)"
 
     private val httpClient = HttpClient(CIO) {
         install(DefaultRequest) {
