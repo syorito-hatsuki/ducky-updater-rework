@@ -10,6 +10,7 @@ import dev.syoritohatsuki.duckyupdaterrework.util.register
 import dev.syoritohatsuki.duckyupdaterrework.util.rootLiteral
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 
 object DuckyUpdaterReWorkServer : DedicatedServerModInitializer {
     override fun onInitializeServer() {
@@ -32,5 +33,10 @@ object DuckyUpdaterReWorkServer : DedicatedServerModInitializer {
                 }
             }
         }
+
+        ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEvents.ServerStarted {
+//            it.commandManager.dispatcher.execute("durw-server update all", it.commandSource)
+            it.commandManager.dispatcher.execute("durw-server update fabric-api yacg", it.commandSource)
+        })
     }
 }
