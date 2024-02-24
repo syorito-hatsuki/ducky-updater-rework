@@ -3,28 +3,42 @@ package dev.syoritohatsuki.duckyupdaterrework.util
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.ModContainer
+import net.fabricmc.loader.api.metadata.ModOrigin
 import java.io.File
 import java.io.IOException
 import kotlin.jvm.optionals.getOrNull
 
 object Hash {
-    fun getSha512Hash(modId: String): String? =
+    fun getSha512Hash(modId: String): String? {
         FabricLoader.getInstance().getModContainer(modId).getOrNull()?.let { container ->
-            container.origin.paths.firstOrNull { it.toString().lowercase().endsWith(".jar") }?.toFile()
-                ?.takeIf(File::isFile)?.let { hashFile(it) }
+            containerToFile(container)?.let { file ->
+                if (file.isFile) return hashFile(file)
+            }
         }
 
-    fun getSha512Hashes(modsIds: List<String>): List<String> =
-        FabricLoader.getInstance().allMods.filter { it.metadata.id in modsIds }.flatMap { container ->
-            container.origin.paths.filter { it.toString().lowercase().endsWith(".jar") }
-                .mapNotNull { it.toFile().takeIf(File::isFile) }
-        }.mapNotNull { hashFile(it) }
+        return null
+    }
 
-    fun getSha512Hashes(): List<String> = FabricLoader.getInstance().allMods.flatMap { container ->
-        container.origin.paths.filter {
-            it.toString().lowercase().endsWith(".jar")
-        }.mapNotNull { it.toFile().takeIf(File::isFile) }
-    }.mapNotNull { hashFile(it) }
+    fun getSha512Hashes(modsIds: List<String>): List<String> = mutableListOf<String>().apply {
+        FabricLoader.getInstance().allMods.filter { modsIds.contains(it.metadata.id) }.forEach { container ->
+            containerToFile(container)?.let { file ->
+                if (file.isFile) hashFile(file)?.let {
+                    add(it)
+                }
+            }
+        }
+    }
+
+    fun getSha512Hashes(): List<String> = mutableListOf<String>().apply {
+        FabricLoader.getInstance().allMods.forEach { container ->
+            containerToFile(container)?.let { file ->
+                if (file.isFile) hashFile(file)?.let {
+                    add(it)
+                }
+            }
+        }
+    }
 
     private fun hashFile(file: File): String? = try {
         Files.asByteSource(file).hash(Hashing.sha512()).toString()
@@ -32,4 +46,14 @@ object Hash {
         e.printStackTrace()
         null
     }
+
+    private fun containerToFile(container: ModContainer): File? = when {
+        container.containingMod.isEmpty && container.origin.kind == ModOrigin.Kind.PATH -> container.origin.paths.stream()
+            .filter { path ->
+                path.toString().lowercase().endsWith(".jar")
+            }.findFirst().getOrNull()?.toFile()
+
+        else -> null
+    }
+
 }
