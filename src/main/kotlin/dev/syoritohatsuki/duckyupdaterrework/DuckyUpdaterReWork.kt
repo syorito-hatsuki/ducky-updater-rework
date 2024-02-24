@@ -1,6 +1,7 @@
 package dev.syoritohatsuki.duckyupdaterrework
 
 import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.ModsIdsArgumentType
+import dev.syoritohatsuki.duckyupdaterrework.storage.Database
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.loader.api.FabricLoader
@@ -16,13 +17,14 @@ object DuckyUpdaterReWork : ModInitializer {
     const val MOD_ID = "ducky-updater-rework"
 
     val logger: Logger = LogManager.getLogger()
-    val configDir: File = Paths.get("", "config", MOD_ID).toFile()
     val modsIds: List<String> = FabricLoader.getInstance().allMods.map { it.metadata.id }
     val modVersion: String = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata.version.friendlyString
         ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
 
     override fun onInitialize() {
         logger.info("Loading common-side DURW")
+
+        Database
 
         ArgumentTypeRegistry.registerArgumentType(
             Identifier(MOD_ID, "mods_ids"),
