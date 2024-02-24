@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.core.api
 
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
 import dev.syoritohatsuki.duckyupdaterrework.core.api.body.LatestVersionByHash
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
@@ -12,17 +13,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import net.fabricmc.loader.api.FabricLoader
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.jvm.optionals.getOrNull
+import net.minecraft.SharedConstants
 
 object ModrinthApi {
-    private val modVersion: String =
-        FabricLoader.getInstance().getModContainer(MOD_ID).getOrNull()!!.metadata.version.friendlyString
-            ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
-    private val userAgent = "User-Agent: syorito-hatsuki/$MOD_ID/$modVersion (github.com/syorito-hatsuki)"
-
     private val httpClient = HttpClient(CIO) {
         install(DefaultRequest) {
             url("https://api.modrinth.com/v2/")
@@ -30,7 +23,7 @@ object ModrinthApi {
         }
 
         install(UserAgent) {
-            agent = userAgent
+            agent = "User-Agent: syorito-hatsuki/$MOD_ID/${DuckyUpdaterReWork.modVersion} (github.com/syorito-hatsuki)"
         }
 
         install(ContentNegotiation) {
@@ -46,5 +39,15 @@ object ModrinthApi {
     suspend fun getLatestVersionsFromHashes(hashes: List<String>): Map<String, Version> =
         httpClient.post("version_files/update") {
             setBody(LatestVersionByHash(hashes))
-    }.body()
+        }.body() ?: emptyMap()
+
+    suspend fun getProjectVersions(projectId: String): List<Version> = httpClient.get("project/${projectId}/version") {
+        parameter("game_versions", "[\"${SharedConstants.getGameVersion().name}\"]")
+        parameter("loaders", "[\"fabric\"]")
+        parameter("featured", false)
+    }.body() ?: listOf()
+
+    suspend fun getMultiplyVersions(versions: Set<String>): List<Version> = httpClient.get("versions") {
+        parameter("ids", versions.joinToString(prefix = "[\"", postfix = "\"]", separator = "\", \""))
+    }.body() ?: listOf()
 }
