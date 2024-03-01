@@ -30,11 +30,11 @@ object Hash {
         }
     }
 
-    fun getSha512Hashes(): List<String> = mutableListOf<String>().apply {
+    fun getSha512Hashes(): Map<String, String> = mutableMapOf<String, String>().apply {
         FabricLoader.getInstance().allMods.forEach { container ->
             containerToFile(container)?.let { file ->
                 if (file.isFile) hashFile(file)?.let {
-                    add(it)
+                    this[it] = container.metadata.id
                 }
             }
         }
