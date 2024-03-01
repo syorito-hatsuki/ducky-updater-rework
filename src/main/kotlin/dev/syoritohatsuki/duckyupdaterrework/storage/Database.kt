@@ -29,7 +29,7 @@ object Database {
                                 fileHash TEXT, 
                                 version TEXT, 
                                 url TEXT,
-                                ignore BOOLEAN
+                                ignore BOOLEAN DEFAULT FALSE
                             )""".trimIndent()
                     )
                     statement.execute(
