@@ -25,11 +25,9 @@ object DuckyUpdaterApi {
 
         val missing = mutableMapOf<String, HashSet<String>>()
 
-        forEach dep@{ dependency ->
-
-            if (!dependency.dependencyType.equals("required")) return@dep
-
+        forEach { dependency ->
             when {
+                !dependency.dependencyType.equals("required") -> return
                 dependency.versionId != null -> missing.computeIfAbsent(projectId) { hashSetOf() }
                     .add(dependency.versionId)
 
