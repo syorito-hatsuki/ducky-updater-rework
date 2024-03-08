@@ -15,14 +15,14 @@ object DuckyUpdaterApi {
     fun checkForUpdates() {
         CoroutineScope(Dispatchers.IO).launch {
             ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList()).forEach { (hash, version) ->
-                Database.update("INSERT INTO projects (modId, projectId, fileHash, version, url) VALUES ('${modsHashes[hash]}', '${version.projectId}', '${hash}', '${version.versionNumber}', '${version.files[0].url}')")
+                Database.update("INSERT INTO projects (modId, projectId, name, fileHash, version, url) VALUES ('${modsHashes[hash]?.id}', '${version.projectId}', '${modsHashes[hash]?.name}', '${hash}', '${version.versionNumber}', '${version.files[0].url}')")
                 version.dependencies.checkForDependency(version.projectId)
             }
+            fixNullModNames()
         }
     }
 
     private suspend fun List<Version.Dependency>.checkForDependency(projectId: String) {
-
         val missing = mutableMapOf<String, HashSet<String>>()
 
         forEach { dependency ->
@@ -43,5 +43,23 @@ object DuckyUpdaterApi {
                 depVersion.dependencies.checkForDependency(it.key)
             }
         }
+    }
+
+    private suspend fun fixNullModNames() {
+        val projectIds = mutableSetOf<String>()
+
+        Database.query("SELECT projects.projectId FROM projects WHERE name IS NULL") {
+            while (it.next()) projectIds.add(it.getString("projectId"))
+        }
+
+        ModrinthApi.getMultiplyProjects(projectIds).forEach { project ->
+            Database.update("UPDATE projects SET name = '${project.title}' WHERE projectId IS '${project.id}'")
+        }
+    }
+
+    fun setIgnore(modId: String? = null, projectId: String? = null, boolean: Boolean) = when {
+        modId != null -> Database.update("UPDATE projects SET ignore = $boolean WHERE modId IS $modId")
+        projectId != null -> Database.update("UPDATE projects SET ignore = $boolean WHERE projectId IS $projectId")
+        else -> -1
     }
 }
