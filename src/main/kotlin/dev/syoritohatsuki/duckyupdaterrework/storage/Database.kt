@@ -24,8 +24,9 @@ object Database {
                 connection.createStatement().use { statement ->
                     statement.execute(
                         """CREATE TABLE IF NOT EXISTS projects (
-                                modId TEXT, 
                                 projectId TEXT PRIMARY KEY, 
+                                modId TEXT, 
+                                name TEXT,
                                 fileHash TEXT, 
                                 version TEXT, 
                                 url TEXT,
