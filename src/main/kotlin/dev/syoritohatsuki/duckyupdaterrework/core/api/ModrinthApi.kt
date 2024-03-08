@@ -3,6 +3,7 @@ package dev.syoritohatsuki.duckyupdaterrework.core.api
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
 import dev.syoritohatsuki.duckyupdaterrework.core.api.body.LatestVersionByHash
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Project
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -49,5 +50,9 @@ object ModrinthApi {
 
     suspend fun getMultiplyVersions(versions: Set<String>): List<Version> = httpClient.get("versions") {
         parameter("ids", versions.joinToString(prefix = "[\"", postfix = "\"]", separator = "\", \""))
+    }.body() ?: listOf()
+
+    suspend fun getMultiplyProjects(projects: Set<String>): List<Project> = httpClient.get("projects") {
+        parameter("ids", projects.joinToString(prefix = "[\"", postfix = "\"]", separator = "\", \""))
     }.body() ?: listOf()
 }
