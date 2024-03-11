@@ -27,6 +27,7 @@ object Database {
                                 projectId TEXT PRIMARY KEY, 
                                 modId TEXT, 
                                 name TEXT,
+                                changelog TEXT,
                                 fileHash TEXT, 
                                 version TEXT, 
                                 url TEXT,
