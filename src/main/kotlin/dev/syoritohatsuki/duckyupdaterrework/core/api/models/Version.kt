@@ -24,6 +24,13 @@ data class Version(
 
     @Serializable
     data class File(
-        val url: String
-    )
+        val url: String,
+        val primary: Boolean,
+        val hashes: Hashes
+    ) {
+        @Serializable
+        data class Hashes(
+            val sha512: String
+        )
+    }
 }
