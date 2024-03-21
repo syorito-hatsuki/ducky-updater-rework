@@ -16,30 +16,26 @@ object DuckyUpdaterApi {
     fun checkForUpdates() {
         CoroutineScope(Dispatchers.IO).launch {
             ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList()).forEach { (hash, version) ->
+
                 val file = version.files.firstOrNull() ?: return@forEach
+
                 if (Objects.equals(file.hashes.sha512, hash)) return@forEach
 
-                Database.update(
-                    """INSERT INTO projects (
-                        modId, 
-                        projectId, 
-                        name, 
-                        changelog, 
-                        fileHash, 
-                        version, 
-                        url
-                    ) VALUES (
-                        '${modsHashes[hash]?.id}', 
-                        '${version.projectId}', 
-                        '${(modsHashes[hash]?.name ?: version.name).escaping()}', 
-                        '${version.changelog.escaping()}', 
-                        '${hash}', 
-                        '${version.versionNumber}', 
-                        '${file.url}'
-                    )""".trimMargin()
+                Database.insertOrUpdateProject(
+                    modId = modsHashes[hash]?.id,
+                    projectId = version.projectId,
+                    name = (modsHashes[hash]?.name ?: version.name).escaping(),
+                    changelog = version.changelog.escaping(),
+                    fileHash = hash,
+                    version = version.versionNumber,
+                    url = file.url,
+                    outdated = true
                 )
+
                 version.dependencies.checkForDependency(version.projectId)
+
             }
+
             fixNullModNames()
         }
     }
@@ -55,19 +51,19 @@ object DuckyUpdaterApi {
 
                 dependency.projectId != null -> {
                     ModrinthApi.getProjectVersions(dependency.projectId).ifEmpty { return@forEach }[0].let {
-                        Database.update(
-                            """INSERT INTO projects (
-                                projectId,
-                                changelog,
-                                version, 
-                                url
-                            ) VALUES (
-                                '${it.projectId}', 
-                                '${it.changelog.escaping()}', 
-                                '${it.versionNumber}', 
-                                '${it.files[0].url}'
-                            )""".trimMargin()
+
+                        val remoteHash = it.files.first().hashes.sha512
+
+                        if (modsHashes.contains(remoteHash)) return@forEach
+
+                        Database.insertOrUpdateProject(
+                            projectId = it.projectId,
+                            changelog = it.changelog.escaping(),
+                            version = it.versionNumber,
+                            url = it.files[0].url,
+                            outdated = true
                         )
+
                         Database.update(
                             """INSERT INTO dependencies (
                                 projectId, 
@@ -97,7 +93,7 @@ object DuckyUpdaterApi {
         }
 
         ModrinthApi.getMultiplyProjects(projectIds).forEach { project ->
-            Database.update("UPDATE projects SET name = '${project.title}' WHERE projectId IS '${project.id}'")
+            Database.update("UPDATE projects SET name = '${project.title.escaping()}' WHERE projectId IS '${project.id}'")
         }
     }
 
@@ -107,7 +103,5 @@ object DuckyUpdaterApi {
         else -> -1
     }
 
-    private fun String.escaping() {
-        replace("'", "''")
-    }
+    private fun String.escaping(): String = replace("'", "''")
 }

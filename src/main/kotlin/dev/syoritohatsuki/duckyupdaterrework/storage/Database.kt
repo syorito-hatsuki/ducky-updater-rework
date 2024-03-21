@@ -4,10 +4,27 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import net.fabricmc.loader.api.FabricLoader
+import java.io.File
 import java.sql.ResultSet
 
 object Database {
-    const val SUCCESS = 1
+    private const val SUCCESS = 1
+
+    private val sqlLogsDirectory = File("logs", "sql_logs").apply {
+        mkdirs()
+    }
+
+    private val sqlQueryLogs = File(sqlLogsDirectory, "query_logs.csv").apply {
+        if (exists()) delete()
+        createNewFile()
+        appendText("SQL Command\tException\n")
+    }
+
+    private val sqlUpdateLogs = File(sqlLogsDirectory, "update_logs.csv").apply {
+        if (exists()) delete()
+        createNewFile()
+        appendText("SQL Command\tException\n")
+    }
 
     private val dataSource: HikariDataSource by lazy {
         HikariDataSource(HikariConfig().apply {
@@ -31,7 +48,8 @@ object Database {
                                 fileHash TEXT, 
                                 version TEXT, 
                                 url TEXT,
-                                ignore BOOLEAN DEFAULT FALSE
+                                ignore BOOLEAN DEFAULT FALSE,
+                                outdated BOOLEAN DEFAULT FALSE
                             )""".trimIndent()
                     )
                     statement.execute(
@@ -60,7 +78,13 @@ object Database {
                     }
                 }
             }
-        }.onFailure { println(it.localizedMessage) }
+        }.onFailure {
+            sqlQueryLogs.appendText(
+                "${
+                    sql.replace("\n", "").replace(Regex("^ +| +$|( )+"), " ")
+                }\t${it.localizedMessage}\n"
+            )
+        }
     }
 
     fun update(sql: String): Int {
@@ -70,7 +94,65 @@ object Database {
                     return statement.executeUpdate(sql)
                 }
             }
-        }.onFailure { println(it.localizedMessage) }
+        }.onFailure {
+            sqlUpdateLogs.appendText(
+                "${
+                    sql.replace("\n", "").replace(Regex("^ +| +$|( )+"), " ")
+                }\t${it.localizedMessage}\n"
+            )
+        }
         return -1
+    }
+
+    fun insertOrUpdateProject(
+        modId: String? = null,
+        projectId: String? = null,
+        name: String? = null,
+        changelog: String? = null,
+        fileHash: String? = null,
+        version: String? = null,
+        url: String? = null,
+        outdated: Boolean? = null,
+    ) {
+        val updateValues = mapOf(
+            "modId" to modId,
+            "projectId" to projectId,
+            "name" to name,
+            "changelog" to changelog,
+            "fileHash" to fileHash,
+            "version" to version,
+            "url" to url,
+            "outdated" to (outdated?.toString() ?: "NULL")
+        ).filter { !it.value.isNullOrBlank() }
+
+        update(StringBuilder().apply {
+            if (projectExist(projectId)) {
+                append("UPDATE projects SET ")
+                append(updateValues.entries.joinToString(",") { "${it.key} = '${it.value}'" })
+                append(" WHERE projectId = '$projectId'")
+            } else {
+                append("INSERT INTO projects (")
+                append(updateValues.keys.joinToString(","))
+                append(") VALUES (")
+                append(updateValues.values.joinToString(",") { "'$it'" })
+                append(")")
+            }
+        }.toString())
+    }
+
+    private fun projectExist(projectId: String? = "", modId: String? = ""): Boolean {
+        var projectExist = false
+
+        query(
+            when {
+                projectId?.isNotBlank() == true -> "SELECT projectId FROM projects WHERE projectId = '${projectId}' LIMIT 1"
+                modId?.isNotBlank() == true -> "SELECT modId FROM projects WHERE modId = '${modId}' LIMIT 1"
+                else -> return false
+            }
+        ) {
+            projectExist = it.next()
+        }
+
+        return projectExist
     }
 }
