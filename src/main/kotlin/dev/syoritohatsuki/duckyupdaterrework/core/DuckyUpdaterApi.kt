@@ -7,7 +7,6 @@ import dev.syoritohatsuki.duckyupdaterrework.util.Hash
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 
 object DuckyUpdaterApi {
 
@@ -19,7 +18,7 @@ object DuckyUpdaterApi {
 
                 val file = version.files.firstOrNull() ?: return@forEach
 
-                if (Objects.equals(file.hashes.sha512, hash)) return@forEach
+                if (file.hashes.sha512 == hash) return@forEach
 
                 Database.insertOrUpdateProject(
                     modId = modsHashes[hash]?.id,
