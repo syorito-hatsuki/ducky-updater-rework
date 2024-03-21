@@ -3,16 +3,16 @@ package dev.syoritohatsuki.duckyupdaterrework.util
 import com.google.common.collect.ArrayListMultimap
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 
-val blacklist = setOf("Fabric API")
+val blacklist = setOf("Fabric API", "")
 
 fun printModsTree(modsIds: ArrayListMultimap<String, String>) {
     findRoots(modsIds).sorted().forEach { root ->
-        printProjectTree(root, modsIds, "", isTail = true, isRoot = true, blacklist)
+        printProjectTree(root, modsIds, "", isTail = true, isRoot = true)
     }
 }
 
 fun findRoots(projects: ArrayListMultimap<String, String>): Set<String> =
-    projects.keys().toHashSet() - projects.values().toHashSet()
+    projects.keys().filterNotNull().toHashSet() - projects.values().filterNotNull().toHashSet()
 
 fun printProjectTree(
     project: String,
@@ -20,18 +20,16 @@ fun printProjectTree(
     prefix: String,
     isTail: Boolean,
     isRoot: Boolean = false,
-    blacklist: Set<String> = emptySet()
 ) {
     val dependencies = projects.get(project)
     val rootSymbol = if (isRoot) " - " else if (isTail) " \\-- " else " |-- "
+
     DuckyUpdaterReWork.logger.warn("$prefix$rootSymbol$project")
-    if (dependencies.isNotEmpty()) {
-        val newPrefix = prefix + if (isTail) "  " else " |  "
-        for ((index, dependency) in dependencies.sorted().withIndex()) {
+    if (dependencies.removeIf { blacklist.contains(it) } && dependencies.isNotEmpty()) {
+        val newPrefix = prefix + if (isTail) "    " else " |  "
+        dependencies.sorted().forEachIndexed { index, dependency ->
             val newIsTail = index == dependencies.size - 1
-            if (!blacklist.contains(dependency)) {
-                printProjectTree(dependency, projects, newPrefix, newIsTail, blacklist = blacklist)
-            }
+            printProjectTree(dependency, projects, newPrefix, newIsTail)
         }
     }
 }
