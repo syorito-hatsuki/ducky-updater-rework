@@ -33,7 +33,7 @@ object DuckyUpdaterReWorkServer : DedicatedServerModInitializer {
                     literal("list") {
                         executes {
                             val modsIds = ArrayListMultimap.create<String, String>()
-                            Database.query("SELECT p1.name AS project_name, p2.name AS dependency_name FROM projects AS p1 JOIN dependencies AS d ON p1.projectId = d.projectId JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId") {
+                            Database.query("SELECT p1.name AS project_name, COALESCE(p2.name, '') AS dependency_name  FROM projects AS p1  LEFT JOIN dependencies AS d ON p1.projectId = d.projectId  LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId") {
                                 while (it.next()) modsIds.put(
                                     it.getString("project_name"), it.getString("dependency_name")
                                 )
