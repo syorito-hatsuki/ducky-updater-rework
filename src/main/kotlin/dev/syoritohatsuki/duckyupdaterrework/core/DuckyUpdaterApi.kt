@@ -51,9 +51,7 @@ object DuckyUpdaterApi {
                 dependency.projectId != null -> {
                     ModrinthApi.getProjectVersions(dependency.projectId).ifEmpty { return@forEach }[0].let {
 
-                        val remoteHash = it.files.first().hashes.sha512
-
-                        if (modsHashes.contains(remoteHash)) return@forEach
+                        if (modsHashes.contains(it.files.first().hashes.sha512)) return@forEach
 
                         Database.insertOrUpdateProject(
                             projectId = it.projectId,
