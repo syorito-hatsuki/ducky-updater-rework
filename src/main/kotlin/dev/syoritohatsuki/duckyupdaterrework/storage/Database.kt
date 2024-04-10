@@ -15,7 +15,7 @@ import kotlin.system.exitProcess
 typealias ModId = String
 typealias DependencyId = String
 
-@Suppress("SqlSourceToSinkFlow")
+@Suppress("SqlSourceToSinkFlow", "SqlNoDataSourceInspection", "SqlResolve")
 object Database {
     private const val SUCCESS = 1
 
@@ -154,7 +154,7 @@ object Database {
         }.toString())
     }
 
-    fun projectExist(projectId: String? = null, modId: String? = null): Boolean {
+    private fun projectExist(projectId: String? = null, modId: String? = null): Boolean {
         if (projectId == null && modId == null) return false
 
         var projectExist = false
