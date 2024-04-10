@@ -1,12 +1,21 @@
 package dev.syoritohatsuki.duckyupdaterrework.storage
 
+import com.google.common.collect.ArrayListMultimap
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
+import dev.syoritohatsuki.duckyupdaterrework.core.dao.AdditionalInfo
+import dev.syoritohatsuki.duckyupdaterrework.core.dao.Version
 import net.fabricmc.loader.api.FabricLoader
 import java.io.File
 import java.sql.ResultSet
+import kotlin.jvm.optionals.getOrNull
+import kotlin.system.exitProcess
 
+typealias ModId = String
+typealias DependencyId = String
+
+@Suppress("SqlSourceToSinkFlow")
 object Database {
     private const val SUCCESS = 1
 
@@ -35,39 +44,7 @@ object Database {
         })
     }
 
-    init {
-        kotlin.runCatching {
-            dataStore().connection.use { connection ->
-                connection.createStatement().use { statement ->
-                    statement.execute(
-                        """CREATE TABLE IF NOT EXISTS projects (
-                                projectId TEXT PRIMARY KEY, 
-                                modId TEXT, 
-                                name TEXT,
-                                changelog TEXT,
-                                fileHash TEXT, 
-                                version TEXT, 
-                                url TEXT,
-                                ignore BOOLEAN DEFAULT FALSE,
-                                outdated BOOLEAN DEFAULT FALSE
-                            )""".trimIndent()
-                    )
-                    statement.execute(
-                        """CREATE TABLE IF NOT EXISTS dependencies (
-                                projectId TEXT, 
-                                dependencyProjectId TEXT, 
-                                PRIMARY KEY (projectId, dependencyProjectId),
-                                FOREIGN KEY (projectId) REFERENCES projects(projectId) ON DELETE CASCADE, 
-                                FOREIGN KEY (dependencyProjectId) REFERENCES projects(projectId) ON DELETE CASCADE
-                            )""".trimMargin()
-                    )
-                    DuckyUpdaterReWork.logger.info("Database initialized")
-                }
-            }
-        }
-    }
-
-    fun dataStore(): HikariDataSource = dataSource
+    private fun dataStore(): HikariDataSource = dataSource
 
     fun query(sql: String, resultSet: (ResultSet) -> Unit) {
         runCatching {
@@ -104,6 +81,43 @@ object Database {
         return -1
     }
 
+    init {
+        runCatching {
+            dataStore().connection.use { connection ->
+                connection.createStatement().use { statement ->
+                    statement.execute(
+                        """CREATE TABLE IF NOT EXISTS projects (
+                                projectId TEXT PRIMARY KEY, 
+                                modId TEXT, 
+                                name TEXT,
+                                changelog TEXT,
+                                fileHash TEXT, 
+                                version TEXT, 
+                                url TEXT,
+                                ignore BOOLEAN DEFAULT FALSE,
+                                outdated BOOLEAN DEFAULT FALSE
+                            )""".trimIndent()
+                    )
+                    statement.execute(
+                        """CREATE TABLE IF NOT EXISTS dependencies (
+                                projectId TEXT, 
+                                dependencyProjectId TEXT, 
+                                PRIMARY KEY (projectId, dependencyProjectId),
+                                FOREIGN KEY (projectId) REFERENCES projects(projectId) ON DELETE CASCADE, 
+                                FOREIGN KEY (dependencyProjectId) REFERENCES projects(projectId) ON DELETE CASCADE
+                            )""".trimMargin()
+                    )
+                    DuckyUpdaterReWork.logger.info("Database initialized")
+                }
+            }
+        }.onFailure {
+            DuckyUpdaterReWork.logger.error("Failed to create database for Ducky Updater: ReWork, mod can't work without it :(")
+            DuckyUpdaterReWork.logger.error(it)
+            exitProcess(0)
+        }
+    }
+
+    /*   Project   */
     fun insertOrUpdateProject(
         modId: String? = null,
         projectId: String? = null,
@@ -140,7 +154,9 @@ object Database {
         }.toString())
     }
 
-    private fun projectExist(projectId: String? = "", modId: String? = ""): Boolean {
+    fun projectExist(projectId: String? = null, modId: String? = null): Boolean {
+        if (projectId == null && modId == null) return false
+
         var projectExist = false
 
         query(
@@ -154,5 +170,37 @@ object Database {
         }
 
         return projectExist
+    }
+
+    fun modsIds(): ArrayListMultimap<ModId, DependencyId> {
+        val modsIds = ArrayListMultimap.create<ModId, DependencyId>()
+        query("SELECT p1.projectId AS project_id, COALESCE(p2.projectId, '') AS dependency_id FROM projects AS p1 LEFT JOIN dependencies AS d ON p1.projectId = d.projectId LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId") {
+            while (it.next()) modsIds.put(it.getString("project_id"), it.getString("dependency_id"))
+        }
+        return modsIds
+    }
+
+    fun additionalInfoByModsIds(modsIds: ArrayListMultimap<ModId, DependencyId>): MutableMap<ModId, AdditionalInfo> {
+        val additionalInfos = mutableMapOf<ModId, AdditionalInfo>()
+        val projectIds = modsIds.keys().toSet() + modsIds.values().toSet()
+        query(
+            "SELECT projectId, modId, name, changelog, url, version FROM projects WHERE projectId IN(${
+                projectIds.joinToString(
+                    prefix = "'", postfix = "'", separator = "','"
+                )
+            }) LIMIT ${projectIds.size}"
+        ) {
+            while (it.next()) additionalInfos[it.getString("projectId")] = AdditionalInfo(
+                name = it.getString("name") ?: "",
+                changeLog = it.getString("changelog") ?: "",
+                url = it.getString("url") ?: "",
+                version = Version(
+                    currentVersion = FabricLoader.getInstance().getModContainer(it.getString("modId"))
+                        .getOrNull()?.metadata?.version?.friendlyString,
+                    newVersion = it.getString("version"),
+                )
+            )
+        }
+        return additionalInfos
     }
 }
