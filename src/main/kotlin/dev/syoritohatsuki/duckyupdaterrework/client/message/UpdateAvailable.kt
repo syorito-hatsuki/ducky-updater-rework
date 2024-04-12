@@ -10,8 +10,8 @@ import net.minecraft.util.Formatting
 
 fun updateAvailable(printer: Printer, additionalInfos: MutableMap<ModId, AdditionalInfo>): Text = Text.empty().apply {
     append(Text.literal(printer.prefix))
-    append(Text.literal("[").formatted(Formatting.DARK_GRAY))
-    if (printer.matchedVersion.isNotBlank()) {
+    append(Text.literal(" [").formatted(Formatting.DARK_GRAY))
+    if (printer.currentExist) {
         append(Text.literal(printer.matchedVersion).formatted(Formatting.GRAY))
         append(Text.literal(printer.currentUnMatchVersion).formatted(Formatting.RED))
         append(Text.literal(" -> ").formatted(Formatting.DARK_GRAY))
