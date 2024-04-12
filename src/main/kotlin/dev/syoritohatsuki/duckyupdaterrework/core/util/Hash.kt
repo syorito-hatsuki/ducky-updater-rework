@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.core.util
 
 import com.google.common.hash.Hashing
 import com.google.common.io.Files

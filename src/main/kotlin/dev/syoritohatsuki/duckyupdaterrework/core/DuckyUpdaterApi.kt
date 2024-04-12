@@ -2,8 +2,8 @@ package dev.syoritohatsuki.duckyupdaterrework.core
 
 import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
+import dev.syoritohatsuki.duckyupdaterrework.core.util.Hash
 import dev.syoritohatsuki.duckyupdaterrework.storage.Database
-import dev.syoritohatsuki.duckyupdaterrework.util.Hash
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
