@@ -4,8 +4,8 @@ import com.google.common.collect.ArrayListMultimap
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
-import dev.syoritohatsuki.duckyupdaterrework.core.dao.AdditionalInfo
-import dev.syoritohatsuki.duckyupdaterrework.core.dao.Version
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.AdditionalInfo
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.Version
 import net.fabricmc.loader.api.FabricLoader
 import java.io.File
 import java.sql.ResultSet

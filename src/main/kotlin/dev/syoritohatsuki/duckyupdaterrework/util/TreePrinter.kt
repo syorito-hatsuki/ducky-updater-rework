@@ -1,12 +1,13 @@
 package dev.syoritohatsuki.duckyupdaterrework.util
 
 import com.google.common.collect.ArrayListMultimap
-import dev.syoritohatsuki.duckyupdaterrework.core.dao.AdditionalInfo
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.AdditionalInfo
 
 val blacklist = setOf("Fabric API")
 
 data class Printer(
-    val modId: String,
+    val projectId: String,
     val prefix: String,
     val matchedVersion: String,
     val currentUnMatchVersion: String,
@@ -38,6 +39,8 @@ fun buildProjectTree(
     val additionalInfo = additionalInfos[project]
     val version = additionalInfo?.version
 
+    DuckyUpdaterReWork.logger.error(isRoot)
+
     buffer.add(
         Printer(
             project,
@@ -53,7 +56,7 @@ fun buildProjectTree(
         val newPrefix = prefix + if (isTail) "    " else " |  "
         dependencies.sortedBy { additionalInfo?.name }.forEachIndexed { index, dependency ->
             val newIsTail = index == dependencies.size - 1
-            buildProjectTree(dependency, projects, additionalInfos, newPrefix, newIsTail, isRoot, buffer)
+            buildProjectTree(dependency, projects, additionalInfos, newPrefix, newIsTail, buffer = buffer)
         }
     }
 }

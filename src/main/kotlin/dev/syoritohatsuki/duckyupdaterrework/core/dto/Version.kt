@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.core.dao
+package dev.syoritohatsuki.duckyupdaterrework.core.dto
 
 data class Version(
     val currentVersion: String? = "",

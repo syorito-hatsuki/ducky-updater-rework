@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.server.message
 
 /*  ASCII colors  */
 const val BOLD = "\u001B[1m"
@@ -10,6 +10,7 @@ const val RESET = "\u001B[0m"
 const val YELLOW = "\u001B[33m"
 
 /*  Log4j line templates  */
+/*     Move out later     */
 const val UPDATE_AVAILABLE = "$BOLD${YELLOW}Updates available$RESET"
 const val PROJECT_UPDATE = "{} $GRAY[$BRIGHT_GRAY{}$BRIGHT_RED{}$GRAY -> $BRIGHT_GRAY{}$BRIGHT_GREEN{}$GRAY]$RESET"
 const val PROJECT_NEW = "{} $GRAY[$BRIGHT_GREEN{}$GRAY]$RESET"
