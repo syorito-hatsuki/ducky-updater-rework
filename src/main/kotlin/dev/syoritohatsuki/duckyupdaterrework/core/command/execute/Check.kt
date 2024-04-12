@@ -15,16 +15,12 @@ fun check(context: CommandContext<out CommandSource>): Int {
     val modsIds = Database.modsIds()
     val additionalInfos = Database.additionalInfoByModsIds(modsIds)
 
-    buildModsTree(modsIds, additionalInfos).apply {
-        logger.error(size)
-        logger.error(context.source::class.simpleName)
-        forEach { printer ->
-            when (context.source) {
-                is ServerCommandSource -> logger.updateAvailable(printer)
-                is FabricClientCommandSource -> (context.source as FabricClientCommandSource).sendFeedback(
-                    updateAvailable(printer, additionalInfos)
-                )
-            }
+    buildModsTree(modsIds, additionalInfos).onEach { printer ->
+        when (context.source) {
+            is ServerCommandSource -> logger.updateAvailable(printer)
+            is FabricClientCommandSource -> (context.source as FabricClientCommandSource).sendFeedback(
+                updateAvailable(printer, additionalInfos)
+            )
         }
     }
 

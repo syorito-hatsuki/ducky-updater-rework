@@ -1,7 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.server
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.logger
-import dev.syoritohatsuki.duckyupdaterrework.core.DuckyUpdaterApi
 import dev.syoritohatsuki.duckyupdaterrework.core.command.commands
 import dev.syoritohatsuki.duckyupdaterrework.util.register
 import dev.syoritohatsuki.duckyupdaterrework.util.rootLiteral
@@ -19,7 +18,5 @@ object DuckyUpdaterReWorkServer : DedicatedServerModInitializer {
                 }
             }
         }
-
-        DuckyUpdaterApi.checkForUpdates()
     }
 }
