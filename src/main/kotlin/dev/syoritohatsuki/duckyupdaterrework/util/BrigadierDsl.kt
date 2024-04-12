@@ -10,8 +10,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode
 
 /**
  * @author zeroeightysix
- * @see
- * Origin: https://gist.github.com/zeroeightysix/cc982cc0526e9a367d7f42a1dd8c354e
+ * @see <a href="https://gist.github.com/zeroeightysix/cc982cc0526e9a367d7f42a1dd8c354e">Origin</a>
  * */
 @DslMarker
 @Target(AnnotationTarget.TYPE)
