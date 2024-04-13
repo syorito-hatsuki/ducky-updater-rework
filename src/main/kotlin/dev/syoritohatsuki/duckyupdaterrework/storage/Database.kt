@@ -7,6 +7,7 @@ import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.Version
 import net.fabricmc.loader.api.FabricLoader
+import org.intellij.lang.annotations.Language
 import java.io.File
 import java.sql.ResultSet
 import kotlin.jvm.optionals.getOrNull
@@ -46,7 +47,7 @@ object Database {
 
     private fun dataStore(): HikariDataSource = dataSource
 
-    fun query(sql: String, resultSet: (ResultSet) -> Unit) {
+    fun query(@Language("SQLite") sql: String, resultSet: (ResultSet) -> Unit) {
         runCatching {
             dataStore().connection.use { connection ->
                 connection.createStatement().use { statement ->
@@ -64,7 +65,7 @@ object Database {
         }
     }
 
-    fun update(sql: String): Int {
+    fun update(@Language("SQLite") sql: String): Int {
         runCatching {
             dataStore().connection.use { connection ->
                 connection.createStatement().use { statement ->
