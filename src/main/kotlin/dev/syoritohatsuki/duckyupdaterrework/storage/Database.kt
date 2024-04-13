@@ -192,11 +192,10 @@ object Database {
         val additionalInfos = mutableMapOf<ModId, AdditionalInfo>()
         val projectIds = modsIds.keys().toSet() + modsIds.values().toSet()
         query(
-            "SELECT projectId, modId, name, changelog, url, version FROM projects WHERE projectId IN(${
-                projectIds.joinToString(
-                    prefix = "'", postfix = "'", separator = "','"
-                )
-            }) LIMIT ${projectIds.size}"
+            """SELECT projectId, modId, name, changelog, url, version 
+                        FROM projects 
+                        WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")}) 
+                        LIMIT ${projectIds.size}"""
         ) {
             while (it.next()) additionalInfos[it.getString("projectId")] = AdditionalInfo(
                 name = it.getString("name") ?: "",
