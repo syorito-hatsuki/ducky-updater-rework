@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.dsl
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.*
