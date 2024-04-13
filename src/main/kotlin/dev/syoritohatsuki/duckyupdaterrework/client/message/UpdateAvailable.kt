@@ -1,8 +1,8 @@
 package dev.syoritohatsuki.duckyupdaterrework.client.message
 
-import dev.syoritohatsuki.duckyupdaterrework.core.dto.AdditionalInfo
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.storage.ModId
-import dev.syoritohatsuki.duckyupdaterrework.util.Printer
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text

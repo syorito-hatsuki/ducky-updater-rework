@@ -1,6 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.server.message
 
-import dev.syoritohatsuki.duckyupdaterrework.util.Printer
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
 import org.apache.logging.log4j.Logger
 
 fun Logger.updateAvailable(printer: Printer) = info(

@@ -1,16 +1,8 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.core.util
 
 import com.google.common.collect.ArrayListMultimap
-import dev.syoritohatsuki.duckyupdaterrework.core.dto.AdditionalInfo
-
-data class Printer(
-    val projectId: String,
-    val prefix: String,
-    val currentExist: Boolean,
-    val matchedVersion: String,
-    val currentUnMatchVersion: String,
-    val newUnMatchVersion: String,
-)
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 
 val blacklist = setOf("Fabric API")
 

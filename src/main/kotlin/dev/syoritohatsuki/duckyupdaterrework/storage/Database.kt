@@ -4,8 +4,8 @@ import com.google.common.collect.ArrayListMultimap
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
-import dev.syoritohatsuki.duckyupdaterrework.core.dto.AdditionalInfo
-import dev.syoritohatsuki.duckyupdaterrework.core.dto.Version
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
+import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.Version
 import net.fabricmc.loader.api.FabricLoader
 import org.intellij.lang.annotations.Language
 import java.io.File
