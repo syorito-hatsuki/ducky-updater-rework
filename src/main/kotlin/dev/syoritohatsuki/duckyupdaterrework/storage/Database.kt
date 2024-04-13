@@ -173,9 +173,16 @@ object Database {
         return projectExist
     }
 
-    fun modsIds(): ArrayListMultimap<ModId, DependencyId> {
+    fun outdateModsIds(): ArrayListMultimap<ModId, DependencyId> {
         val modsIds = ArrayListMultimap.create<ModId, DependencyId>()
-        query("SELECT p1.projectId AS project_id, COALESCE(p2.projectId, '') AS dependency_id FROM projects AS p1 LEFT JOIN dependencies AS d ON p1.projectId = d.projectId LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId") {
+        query(
+            """SELECT p1.projectId AS project_id, COALESCE(p2.projectId, '') AS dependency_id 
+                    FROM projects AS p1 
+                    LEFT JOIN dependencies AS d ON p1.projectId = d.projectId 
+                    LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId
+                    WHERE p1.ignore = false AND p1.outdated = true
+            """.trimMargin()
+        ) {
             while (it.next()) modsIds.put(it.getString("project_id"), it.getString("dependency_id"))
         }
         return modsIds

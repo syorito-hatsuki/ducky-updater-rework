@@ -15,7 +15,7 @@ import net.minecraft.text.Text
 
 
 fun check(context: CommandContext<out CommandSource>): Int {
-    val modsIds = Database.modsIds()
+    val modsIds = Database.outdateModsIds()
     val additionalInfos = Database.additionalInfoByModsIds(modsIds)
 
     var updatesCount: Int
