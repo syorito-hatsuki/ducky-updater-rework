@@ -6,6 +6,7 @@ import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.Version
+import dev.syoritohatsuki.duckyupdaterrework.util.toInt
 import net.fabricmc.loader.api.FabricLoader
 import org.intellij.lang.annotations.Language
 import java.io.File
@@ -137,7 +138,7 @@ object Database {
             "fileHash" to fileHash,
             "version" to version,
             "url" to url,
-            "outdated" to (outdated?.toString() ?: "NULL")
+            "outdated" to (outdated?.toInt()?.toString() ?: "NULL")
         ).filter { !it.value.isNullOrBlank() }
 
         update(StringBuilder().apply {
@@ -180,7 +181,7 @@ object Database {
                     FROM projects AS p1 
                     LEFT JOIN dependencies AS d ON p1.projectId = d.projectId 
                     LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId
-                    WHERE p1.ignore = false AND p1.outdated = true
+                    WHERE p1.ignore = FALSE AND p1.outdated = TRUE
             """.trimMargin()
         ) {
             while (it.next()) modsIds.put(it.getString("project_id"), it.getString("dependency_id"))

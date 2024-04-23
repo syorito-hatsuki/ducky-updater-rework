@@ -4,6 +4,7 @@ import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Hash
 import dev.syoritohatsuki.duckyupdaterrework.storage.Database
+import dev.syoritohatsuki.duckyupdaterrework.util.toInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -95,8 +96,8 @@ object DuckyUpdaterApi {
     }
 
     fun setIgnore(modId: String? = null, projectId: String? = null, boolean: Boolean) = when {
-        modId != null -> Database.update("UPDATE projects SET ignore = '$boolean' WHERE modId IS '$modId'")
-        projectId != null -> Database.update("UPDATE projects SET ignore = '$boolean' WHERE projectId IS '$projectId'")
+        modId != null -> Database.update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE modId IS '$modId'")
+        projectId != null -> Database.update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE projectId IS '$projectId'")
         else -> -1
     }
 
