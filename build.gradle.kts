@@ -50,8 +50,8 @@ dependencies {
     include(implementation("io.ktor", "ktor-serialization-kotlinx-json", ktorVersion))
 
 
-    implementation("org.xerial", "sqlite-jdbc", "3.44.1.0")
-    implementation("com.zaxxer", "HikariCP", "5.1.0")
+    include(implementation("org.xerial", "sqlite-jdbc", "3.44.1.0"))
+    include(implementation("com.zaxxer", "HikariCP", "5.1.0"))
 }
 
 tasks {
