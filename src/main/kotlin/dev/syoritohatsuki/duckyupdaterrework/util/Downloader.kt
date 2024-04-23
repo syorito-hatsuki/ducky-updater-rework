@@ -1,92 +1,90 @@
 package dev.syoritohatsuki.duckyupdaterrework.util
 
+import dev.syoritohatsuki.duckyupdaterrework.util.Downloader.Mode.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.fabricmc.loader.api.FabricLoader
-import java.net.URL
-import java.nio.file.Files
+import java.io.File
 
 object Downloader {
+    private val mutex = Mutex()
+    private val client = HttpClient(CIO) { expectSuccess = true }
+    private val modsDirectory = FabricLoader.getInstance().gameDir.resolve("mods")
+    private var state: State = State.IDLE
 
-    enum class State {
-        RUNNING, STOPPED, IDLE
+    private enum class State {
+        IDLE, RUNNING
     }
 
-    enum class Status {
-        COMPLETE, DOWNLOADING, FAILURE
+    enum class Mode {
+        SEQUENTIALLY, PARALLEL
     }
 
-    enum class Event {
-        START, STOP
+    data class Fail(
+        val filename: String, val url: String, val reason: String
+    )
+
+    @Throws(IllegalStateException::class)
+    private fun throwIfLocked() = when {
+        this.state == State.IDLE -> state = State.RUNNING
+        else -> throw IllegalStateException("Another download is already in progress.")
     }
 
-    private var currentState: State = State.IDLE
+    @Throws(IllegalStateException::class)
+    suspend fun download(
+        mode: Mode = PARALLEL,
+        urls: Set<String>,
+        onEndFailSet: (fails: Set<Fail>) -> Unit,
+        onLoaded: (filename: String, count: Int) -> Unit
+    ) {
+        throwIfLocked()
 
-    suspend fun testProgressBar() {
-        val urls = listOf(
-            "https://cdn.modrinth.com/data/3rc31Hgo/versions/Pg5efHEv/spectrum-1.7.4-deeper-down.jar",
-            "https://cdn.modrinth.com/data/Gov5Dboq/versions/Qw2Y5gWk/Modern-Industrialization-1.8.0.jar",
-            "https://cdn.modrinth.com/data/bAWzYNRd/versions/ncgynsU3/mythicmetals-0.19.2%2B1.20.1.jar",
-        )
+        var count = 0
+        val failed = mutableSetOf<Fail>()
 
-        coroutineScope {
-            val jobs = urls.map { url ->
-                async {
-                    val fileName = url.substringAfterLast("/")
-                    print("\n")
-                    downloadFileWithProgress(url, fileName)
-                    print("\nDownloaded $fileName")
-                    print("\n")
+        when (mode) {
+            SEQUENTIALLY -> urls.forEach {
+                val filename = it.substringAfterLast('/')
+                try {
+                    val file = downloadFile(it, filename)
+                    onLoaded.invoke(file, ++count)
+                } catch (e: RuntimeException) {
+                    failed.add(Fail(filename, it, e.localizedMessage))
                 }
             }
 
-            jobs.awaitAll()
+            PARALLEL -> urls.map {
+                CoroutineScope(Dispatchers.IO).async {
+                    val filename = it.substringAfterLast('/')
+                    try {
+                        val file = downloadFile(it, filename)
+                        mutex.withLock {
+                            onLoaded.invoke(file, ++count)
+                        }
+                    } catch (e: RuntimeException) {
+                        failed.add(Fail(filename, it, e.localizedMessage))
+                    }
+                }
+            }.awaitAll()
         }
+
+        state = State.IDLE
+
+        onEndFailSet.invoke(failed)
     }
 
-    private suspend fun downloadFileWithProgress(url: String, outputFile: String) {
-        val connection = withContext(Dispatchers.IO) {
-            URL(url).openConnection()
-        }
-        val contentLength = connection.contentLengthLong
-        if (contentLength == -1L) {
-            println("Content length of the file is unknown. Cannot display progress.")
-            return
-        }
-
-        val channel = Channel<Int>()
-        val progressBar = CoroutineScope(Dispatchers.IO).launch {
-            val progressIndicator = ProgressBar(contentLength.toInt())
-            for (progress in channel) {
-                print("\r${outputFile} => [${progressIndicator.getProgressString(progress)}]")
-            }
-            println()
-        }
-
-        val job = CoroutineScope(Dispatchers.IO).launch {
-            val inputStream = connection.getInputStream()
-            val outputStream =
-                Files.newOutputStream(FabricLoader.getInstance().gameDir.resolve("mods").resolve(outputFile))
-            val buffer = ByteArray(1024)
-            var bytesCount: Long = 0
-            var bytesRead: Int
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-                bytesCount += bytesRead
-                channel.send(bytesCount.toInt())
-            }
-            outputStream.close()
-            channel.close()
-        }
-
-        job.join()
-        progressBar.join()
-    }
-
-    class ProgressBar(private val total: Int) {
-        fun getProgressString(progress: Int): String {
-            val currentProgress = (progress.toDouble() / total * 100).toInt()
-            return "$currentProgress%"
+    @Throws(RuntimeException::class)
+    private suspend fun downloadFile(url: String, fileName: String): String {
+        try {
+            File(modsDirectory.toFile(), fileName).writeBytes(client.get(url).body<ByteArray>())
+            return fileName
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to download file: $fileName. ${e.message}")
         }
     }
 }
