@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.duckyupdaterrework.storage
+package dev.syoritohatsuki.duckyupdaterrework.core.storage
 
 import com.google.common.collect.ArrayListMultimap
 import com.zaxxer.hikari.HikariConfig
@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.Version
-import dev.syoritohatsuki.duckyupdaterrework.util.toInt
+import dev.syoritohatsuki.duckyupdaterrework.core.util.toInt
 import net.fabricmc.loader.api.FabricLoader
 import org.intellij.lang.annotations.Language
 import java.io.File

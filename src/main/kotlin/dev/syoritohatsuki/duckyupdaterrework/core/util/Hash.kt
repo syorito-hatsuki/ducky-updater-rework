@@ -36,5 +36,4 @@ object Hash {
 
         else -> null
     }
-
 }

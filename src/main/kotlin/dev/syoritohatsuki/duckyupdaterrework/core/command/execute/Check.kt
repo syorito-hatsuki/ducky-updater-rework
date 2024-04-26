@@ -4,10 +4,10 @@ import com.mojang.brigadier.context.CommandContext
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.logger
 import dev.syoritohatsuki.duckyupdaterrework.client.message.updateAvailable
 import dev.syoritohatsuki.duckyupdaterrework.client.message.updatesCount
+import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.buildModsTree
 import dev.syoritohatsuki.duckyupdaterrework.server.message.updateAvailable
 import dev.syoritohatsuki.duckyupdaterrework.server.message.updatesCount
-import dev.syoritohatsuki.duckyupdaterrework.storage.Database
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 import net.minecraft.command.CommandSource
 import net.minecraft.server.command.ServerCommandSource

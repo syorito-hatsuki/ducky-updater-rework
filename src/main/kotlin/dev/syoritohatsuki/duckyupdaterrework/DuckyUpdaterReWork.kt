@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.duckyupdaterrework
 
 import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.ModsIdsArgumentType
-import dev.syoritohatsuki.duckyupdaterrework.storage.Database
+import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.loader.api.FabricLoader

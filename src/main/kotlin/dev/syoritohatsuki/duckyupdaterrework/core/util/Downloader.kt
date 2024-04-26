@@ -1,6 +1,6 @@
-package dev.syoritohatsuki.duckyupdaterrework.util
+package dev.syoritohatsuki.duckyupdaterrework.core.util
 
-import dev.syoritohatsuki.duckyupdaterrework.util.Downloader.Mode.*
+import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader.Mode.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -31,7 +31,7 @@ object Downloader {
 
     @Throws(IllegalStateException::class)
     private fun throwIfLocked() = when {
-        this.state == State.IDLE -> state = State.RUNNING
+        state == State.IDLE -> state = State.RUNNING
         else -> throw IllegalStateException("Another download is already in progress.")
     }
 

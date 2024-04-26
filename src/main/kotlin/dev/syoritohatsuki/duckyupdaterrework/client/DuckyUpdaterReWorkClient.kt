@@ -2,8 +2,8 @@ package dev.syoritohatsuki.duckyupdaterrework.client
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.logger
 import dev.syoritohatsuki.duckyupdaterrework.core.command.commands
-import dev.syoritohatsuki.duckyupdaterrework.dsl.register
-import dev.syoritohatsuki.duckyupdaterrework.dsl.rootLiteral
+import dev.syoritohatsuki.duckyupdaterrework.core.dsl.register
+import dev.syoritohatsuki.duckyupdaterrework.core.dsl.rootLiteral
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 

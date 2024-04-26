@@ -42,7 +42,7 @@ fun buildProjectTree(
     )
 
     projects.get(project).takeIf { it.isNotEmpty() }?.apply {
-        removeIf { it.isNullOrBlank() || blacklist.contains((additionalInfos[it]?.name ?: "")) }
+        removeIf { it.isNullOrBlank() || blacklist.contains(additionalInfos[it]?.name) }
         sortedBy { additionalInfo?.name }.forEachIndexed { index, dependency ->
             buildProjectTree(
                 dependency,
