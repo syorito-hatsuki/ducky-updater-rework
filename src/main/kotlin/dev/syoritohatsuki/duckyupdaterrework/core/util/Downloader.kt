@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.core.util
 
+import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader.Mode.*
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -25,6 +26,12 @@ object Downloader {
         SEQUENTIALLY, PARALLEL
     }
 
+    enum class FileAction {
+        DELETE,
+        DISABLE,
+        ARCHIVE
+    }
+
     data class Fail(
         val filename: String, val url: String, val reason: String
     )
@@ -37,7 +44,7 @@ object Downloader {
 
     @Throws(IllegalStateException::class)
     suspend fun download(
-        mode: Mode = PARALLEL,
+        mode: Mode = ConfigManager.read().downloadMode,
         urls: Set<String>,
         onEndFailSet: (fails: Set<Fail>) -> Unit,
         onLoaded: (filename: String, count: Int) -> Unit
