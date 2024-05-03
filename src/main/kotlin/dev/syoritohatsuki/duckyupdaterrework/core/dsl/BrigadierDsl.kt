@@ -111,6 +111,15 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
 ) = argument(name, StringArgumentType.greedyString(), block)
 
 /**
+ * A shorthand for appending a word required argument to `this` [ArgumentBuilder]
+ *
+ * @see argument
+ */
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.word(
+    name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
+) = argument(name, StringArgumentType.word(), block)
+
+/**
  * Sets the executes callback for `this` [ArgumentBuilder]
  *
  * @param command the callback
