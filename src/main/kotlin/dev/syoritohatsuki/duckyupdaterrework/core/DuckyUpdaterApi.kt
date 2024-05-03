@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.core
 
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
@@ -15,7 +16,12 @@ object DuckyUpdaterApi {
 
             val file = version.files.firstOrNull() ?: return@forEach
 
-            if (file.hashes.sha512 == hash) return@forEach
+            if (file.hashes.sha512 == hash) {
+                DuckyUpdaterReWork.logger.debug("1.1: ${version.projectId} ${(modsHashes[hash]?.metadata?.name ?: version.name).escaping()} | ${file.url}")
+                return@forEach
+            }
+
+            DuckyUpdaterReWork.logger.debug("1.2: ${version.projectId} ${(modsHashes[hash]?.metadata?.name ?: version.name).escaping()} | ${file.url}")
 
             Database.insertOrUpdateProject(
                 modId = modsHashes[hash]?.metadata?.id,
@@ -41,14 +47,28 @@ object DuckyUpdaterApi {
 
         forEach { dependency ->
             when {
-                !dependency.dependencyType.equals("required") -> return@forEach
-                dependency.versionId != null -> missing.computeIfAbsent(projectId) { hashSetOf() }
-                    .add(dependency.versionId)
+                !dependency.dependencyType.equals("required") -> {
+                    DuckyUpdaterReWork.logger.debug("2.1: {} | {}", projectId, dependency)
+                    return@forEach
+                }
+
+                dependency.versionId != null -> {
+                    DuckyUpdaterReWork.logger.debug("2.2: {} | {}", projectId, dependency)
+                    missing.computeIfAbsent(projectId) { hashSetOf() }
+                        .add(dependency.versionId)
+                }
 
                 dependency.projectId != null -> {
-                    ModrinthApi.getProjectVersions(dependency.projectId).ifEmpty { return@forEach }[0].let {
+                    DuckyUpdaterReWork.logger.debug("2.3: {} | {}", projectId, dependency)
+                    ModrinthApi.getProjectVersions(dependency.projectId).ifEmpty {
+                        DuckyUpdaterReWork.logger.debug("2.3.1: {} | {}", projectId, dependency)
+                        return@forEach
+                    }[0].let {
 
-                        if (modsHashes.contains(it.files.first().hashes.sha512)) return@forEach
+                        if (modsHashes.contains(it.files.first().hashes.sha512)) {
+                            DuckyUpdaterReWork.logger.debug("2.3.2: {} | {}", projectId, dependency)
+                            return@forEach
+                        }
 
                         Database.insertOrUpdateProject(
                             projectId = it.projectId,
@@ -73,6 +93,7 @@ object DuckyUpdaterApi {
         }
 
         missing.forEach {
+            DuckyUpdaterReWork.logger.debug("3: {} | {}", it.key, it.value)
             ModrinthApi.getMultiplyVersions(it.value).forEach { depVersion ->
                 depVersion.dependencies.checkForDependency(it.key)
             }
