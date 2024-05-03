@@ -88,12 +88,13 @@ object Downloader {
                     try {
                         if (downloadFile(url, filename)) {
                             context.source.sendMessageWithLog("Downloaded: $filename")
+                            Database.markProjectAsUpdated(projectId)
+                            if (filename == oldFile) return@forEach
                             when (action) {
                                 FileActions.FileAction.DELETE -> deleteOldMod(oldFile)
                                 FileActions.FileAction.DISABLE -> disableOldMod(oldFile)
                                 FileActions.FileAction.ARCHIVE -> archiveOldMods(oldFile, date)
                             }
-                            Database.markProjectAsUpdated(projectId)
                         } else {
                             context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode and $action action")
                         }
@@ -110,13 +111,14 @@ object Downloader {
                         try {
                             if (downloadFile(url, filename)) {
                                 context.source.sendMessageWithLog("Downloaded: $filename")
+                                Database.markProjectAsUpdated(projectId)
+                                if (filename == oldFile) return@async
                                 mutex.withLock {
                                     when (action) {
                                         FileActions.FileAction.DELETE -> deleteOldMod(oldFile)
                                         FileActions.FileAction.DISABLE -> disableOldMod(oldFile)
                                         FileActions.FileAction.ARCHIVE -> archiveOldMods(oldFile, date)
                                     }
-                                    Database.markProjectAsUpdated(projectId)
                                 }
                             } else {
                                 context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode and $action action")
