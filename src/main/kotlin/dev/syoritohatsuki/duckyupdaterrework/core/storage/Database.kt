@@ -9,7 +9,6 @@ import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.util.toInt
 import net.fabricmc.loader.api.FabricLoader
 import org.intellij.lang.annotations.Language
-import java.io.File
 import java.sql.ResultSet
 import kotlin.jvm.optionals.getOrNull
 import kotlin.system.exitProcess
@@ -20,25 +19,9 @@ typealias ModId = String
 typealias Url = String
 typealias Filename = String
 
-@Suppress("SqlSourceToSinkFlow", "SqlNoDataSourceInspection", "SqlResolve")
+@Suppress("SqlSourceToSinkFlow", "SqlNoDataSourceInspection", "SqlResolve", "LoggingSimilarMessage")
 object Database {
     private const val SUCCESS = 1
-
-    private val sqlLogsDirectory = File("logs", "sql_logs").apply {
-        mkdirs()
-    }
-
-    private val sqlQueryLogs = File(sqlLogsDirectory, "query_logs.csv").apply {
-        if (exists()) delete()
-        createNewFile()
-        appendText("SQL Command\tException\n")
-    }
-
-    private val sqlUpdateLogs = File(sqlLogsDirectory, "update_logs.csv").apply {
-        if (exists()) delete()
-        createNewFile()
-        appendText("SQL Command\tException\n")
-    }
 
     private val dataSource: HikariDataSource by lazy {
         HikariDataSource(HikariConfig().apply {
@@ -61,11 +44,10 @@ object Database {
                 }
             }
         }.onFailure {
-            sqlQueryLogs.appendText(
-                "${
-                    sql.replace("\n", "").replace(Regex("^ +| +$|( )+"), " ")
-                }\t${it.localizedMessage}\n"
-            )
+            DuckyUpdaterReWork.logger.debug("")
+            DuckyUpdaterReWork.logger.debug("Error: ${it.message}")
+            DuckyUpdaterReWork.logger.debug("SQL Query Command: $sql")
+            DuckyUpdaterReWork.logger.debug("")
         }
     }
 
@@ -77,11 +59,10 @@ object Database {
                 }
             }
         }.onFailure {
-            sqlUpdateLogs.appendText(
-                "${
-                    sql.replace("\n", "").replace(Regex("^ +| +$|( )+"), " ")
-                }\t${it.localizedMessage}\n"
-            )
+            DuckyUpdaterReWork.logger.debug("")
+            DuckyUpdaterReWork.logger.debug("Error: ${it.message}")
+            DuckyUpdaterReWork.logger.debug("SQL Update Command: $sql")
+            DuckyUpdaterReWork.logger.debug("")
         }
         return -1
     }
@@ -99,6 +80,7 @@ object Database {
                                 fileHash TEXT, 
                                 version TEXT, 
                                 url TEXT,
+                                filename TEXT,
                                 ignore BOOLEAN DEFAULT FALSE,
                                 outdated BOOLEAN DEFAULT FALSE
                             )""".trimIndent()
@@ -124,13 +106,14 @@ object Database {
 
     /*   Project   */
     fun insertOrUpdateProject(
-        modId: String? = null,
-        projectId: String? = null,
+        modId: ModId? = null,
+        projectId: ProjectId? = null,
         name: String? = null,
         changelog: String? = null,
         fileHash: String? = null,
         version: String? = null,
-        url: String? = null,
+        url: Url? = null,
+        fileName: Filename? = null,
         outdated: Boolean? = null,
     ) {
         val updateValues = mapOf(
@@ -141,13 +124,14 @@ object Database {
             "fileHash" to fileHash,
             "version" to version,
             "url" to url,
+            "filename" to fileName,
             "outdated" to (outdated?.toInt()?.toString() ?: "NULL")
         ).filter { !it.value.isNullOrBlank() }
 
         update(StringBuilder().apply {
-            if (projectExist(projectId)) {
+            if (isProjectExist(projectId)) {
                 append("UPDATE projects SET ")
-                append(updateValues.entries.joinToString(",") { "${it.key} = '${it.value}'" })
+                append(updateValues.entries.joinToString(",") { "'${it.key}' = '${it.value}'" })
                 append(" WHERE projectId = '$projectId'")
             } else {
                 append("INSERT INTO projects (")
@@ -159,7 +143,17 @@ object Database {
         }.toString())
     }
 
-    private fun projectExist(projectId: String? = null, modId: String? = null): Boolean {
+    fun markProjectAsUpdated(projectId: ProjectId) {
+        update("UPDATE projects SET outdated = 0 WHERE projectId = '$projectId'")
+    }
+
+    fun setIgnore(modIdOrProjectId: String? = null, boolean: Boolean): Int = when {
+        modIdOrProjectId == null -> -1
+        Regex("[a-z][a-z0-9-_]{1,63}").matches(modIdOrProjectId) -> update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE modId IS '$modIdOrProjectId'")
+        else -> update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE projectId IS '$modIdOrProjectId'")
+    }
+
+    private fun isProjectExist(projectId: ProjectId? = null, modId: ModId? = null): Boolean {
         if (projectId == null && modId == null) return false
 
         var projectExist = false
@@ -177,8 +171,8 @@ object Database {
         return projectExist
     }
 
-    fun outdateModsIds(): ArrayListMultimap<ModId, DependencyId> {
-        val modsIds = ArrayListMultimap.create<ModId, DependencyId>()
+    fun getOutdatedProjectIds(): ArrayListMultimap<ProjectId, DependencyId> {
+        val modsIds = ArrayListMultimap.create<ProjectId, DependencyId>()
         query(
             """SELECT p1.projectId AS project_id, COALESCE(p2.projectId, '') AS dependency_id 
                     FROM projects AS p1 
@@ -192,9 +186,9 @@ object Database {
         return modsIds
     }
 
-    fun additionalInfoByModsIds(modsIds: ArrayListMultimap<ModId, DependencyId>): MutableMap<ModId, AdditionalInfo> {
-        val additionalInfos = mutableMapOf<ModId, AdditionalInfo>()
-        val projectIds = modsIds.keys().toSet() + modsIds.values().toSet()
+    fun getAdditionalInfoByProjectIds(projectIdsMultimap: ArrayListMultimap<ProjectId, DependencyId>): MutableMap<ProjectId, AdditionalInfo> {
+        val additionalInfos = mutableMapOf<ProjectId, AdditionalInfo>()
+        val projectIds = projectIdsMultimap.keys().toSet() + projectIdsMultimap.values().toSet()
         query(
             """SELECT projectId, modId, name, changelog, url, version 
                         FROM projects 
@@ -208,10 +202,63 @@ object Database {
                 version = Version(
                     currentVersion = FabricLoader.getInstance().getModContainer(it.getString("modId"))
                         .getOrNull()?.metadata?.version?.friendlyString,
-                    newVersion = it.getString("version"),
+                    newVersion = it.getString("version") ?: "",
                 )
             )
         }
         return additionalInfos
     }
+
+    fun getAllDownloadingData() = mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
+        query(
+            """SELECT projects.projectId, projects.filename, projects.url 
+                        FROM projects
+                        WHERE ignore = FALSE
+                        AND outdated = TRUE
+                """
+        ) {
+            while (it.next()) put(
+                it.getString("projectId"), Pair(
+                    it.getString("url") ?: continue, it.getString("filename") ?: ""
+                )
+            )
+        }
+    }
+
+    fun getDownloadingDataByModIds(modIds: Set<ModId>) = mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
+        query(
+            """SELECT projects.projectId, projects.filename, projects.url 
+                        FROM projects 
+                        WHERE modId IN(${modIds.joinToString(prefix = "'", postfix = "'", separator = "','")}) 
+                        AND ignore = FALSE 
+                        AND outdated = TRUE
+                        LIMIT ${modIds.size}
+                """
+        ) {
+            while (it.next()) put(
+                it.getString("projectId"), Pair(
+                    it.getString("url") ?: continue, it.getString("filename") ?: ""
+                )
+            )
+        }
+    }
+
+    fun getDownloadingDataByProjectIds(projectIds: Set<ProjectId>) =
+        mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
+            query(
+                """SELECT projects.projectId,projects.filename, projects.url 
+                        FROM projects 
+                        WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")})
+                        AND ignore = FALSE 
+                        AND outdated = TRUE
+                        LIMIT ${projectIds.size}
+                """
+            ) {
+                while (it.next()) put(
+                    it.getString("projectId"), Pair(
+                        it.getString("url") ?: continue, it.getString("filename") ?: ""
+                    )
+                )
+            }
+        }
 }
