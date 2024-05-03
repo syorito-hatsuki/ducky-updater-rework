@@ -7,7 +7,9 @@
     "Syorito Hatsuki"
   ],
   "contact": {
-    "homepage": "https://syorito-hatsuki.dev/"
+    "homepage": "https://github.com/syorito-hatsuki",
+    "issues": "https://github.com/syorito-hatsuki/ducky-updater-rework/issues",
+    "sources": "https://github.com/syorito-hatsuki/ducky-updater-rework"
   },
   "icon": "assets/duckyupdaterrework/icon.png",
   "license": "MIT Licence",
