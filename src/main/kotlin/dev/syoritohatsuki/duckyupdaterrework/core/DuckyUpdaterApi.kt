@@ -54,8 +54,7 @@ object DuckyUpdaterApi {
 
                 dependency.versionId != null -> {
                     DuckyUpdaterReWork.logger.debug("2.2: {} | {}", projectId, dependency)
-                    missing.computeIfAbsent(projectId) { hashSetOf() }
-                        .add(dependency.versionId)
+                    missing.computeIfAbsent(projectId) { hashSetOf() }.add(dependency.versionId)
                 }
 
                 dependency.projectId != null -> {
