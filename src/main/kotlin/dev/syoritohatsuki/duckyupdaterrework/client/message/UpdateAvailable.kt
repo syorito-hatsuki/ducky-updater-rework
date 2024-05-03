@@ -2,13 +2,14 @@ package dev.syoritohatsuki.duckyupdaterrework.client.message
 
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
-import dev.syoritohatsuki.duckyupdaterrework.core.storage.ModId
+import dev.syoritohatsuki.duckyupdaterrework.core.storage.ProjectId
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
-fun updateAvailable(printer: Printer, additionalInfos: MutableMap<ModId, AdditionalInfo>): Text = Text.empty().apply {
+fun updateAvailable(printer: Printer, additionalInfos: MutableMap<ProjectId, AdditionalInfo>): Text =
+    Text.empty().apply {
     append(Text.literal(printer.prefix))
     append(Text.literal(" [").formatted(Formatting.DARK_GRAY))
     if (printer.currentExist) {
