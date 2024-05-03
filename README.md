@@ -1,40 +1,185 @@
-```mermaid
-graph TD
-;
-    A["Request to install package (-S)"] --> B{Dependency Resolution};
-    B -->|Dependencies found| C["Install dependencies"];
-    B -->|Dependencies not found| D["Error: Missing dependencies"];
-    C --> E["Download packages"];
-    E --> F["Install packages"];
-    F --> G{Conflict Resolution};
-    G -->|No conflicts| H["Transaction Completed"];
-    G -->|Conflicts found| I["Error: Conflicts"];
-    H --> J{"More packages to install?"};
-    I --> J;
-    J -->|Yes| A;
-    J -->|No| K["End"];
-    L["Request to search for packages (-Ss)"] --> M{"Fetch Package Information"};
-    M --> N["Display Search Results"];
-    O["Request to synchronize package databases (-Sy)"] --> P{"Fetch Updated Package Information"};
-    P --> Q["Update Package Databases"];
-    R["Request to install/upgrade all packages (-Syu)"] --> S{Dependency Resolution};
-    S -->|Dependencies found| T["Install/Upgrade dependencies"];
-    S -->|Dependencies not found| U["Error: Missing dependencies"];
-    T --> V["Download packages"];
-    V --> W["Install/Upgrade packages"];
-    W --> X{Conflict Resolution};
-    X -->|No conflicts| Y["Transaction Completed"];
-    X -->|Conflicts found| Z["Error: Conflicts"];
-    Y --> AA{"More packages to install/upgrade?"};
-    Z --> AA;
-    AA -->|Yes| R;
-    AA -->|No| AB["End"];
-    A1["Request to install specific package (-S)"] --> B;
-    B2["Request to remove specific package (-R)"] --> C2{Dependency Resolution};
-    C2 --> D2["Uninstall dependencies"];
-    D2 --> E2["Remove packages"];
-    E2 --> F2["Transaction Completed"];
-    G1["Request to search for packages (-Q)"] --> M;
-    J1["Request to upgrade all packages (-U)"] --> C2;
+<a name="readme-top"></a>
 
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
+[![Discord][discord-shield]][discord-url]
+[![Modrinth][modrinth-shield]][modrinth-url]
+
+<br />
+<div align="center">
+  <a href="https://github.com/syorito-hatsuki/ducky-updater-rework">
+    <img src="https://github.com/syorito-hatsuki/ducky-updater-rework/blob/1.20/src/main/resources/assets/duckyupdaterrework/icon.png?raw=true" alt="Logo" width="80" height="80">
+  </a>
+
+<h3 align="center">Ducky Updater: ReWork</h3>
+
+  <p align="center">
+    Simple utility for update mods using Modrinth API
+    <br />
+    <a href="https://discord.gg/pbwnMwnUD6">Support</a>
+    ·
+    <a href="https://github.com/syorito-hatsuki/ducky-updater-rework/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/syorito-hatsuki/ducky-updater-rework/issues">Request Feature</a>
+  </p>
+</div>
+
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#usage">Usage</a>
+      <ul>
+        <li><a href="#commands-and-permissions">Commands and permissions</a></li>
+        <li><a href="#config">Config</a></li>
+        </ul>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
+## About The Project
+
+![In-Game ScreenShot][screenshot]
+
+Mod that give possibility to update mods without using third-party launchers
+
+> ReWorked version of old Ducky Updater that has many issues, legacy code and bad performance
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Built With
+
+* ![Fabric][fabric]
+* ![Fabric-Language-Kotlin][fabric-language-kotlin]
+* ![ModMenu Badges Lib][modmenu-badges-lib]
+* ![fStats][fstats]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Usage
+
+### Commands and permissions
+
+<details>
+  <summary>Client</summary>
+
+| Command                                            | OP | Permission | Description                              |
+|----------------------------------------------------|----|------------|------------------------------------------|
+| `/durw-client check`                               | ❌  | `none`     | Check for updates                        |
+| `/durw-client ignore <modIdOrProjectId> <ignore>`  | ❌  | `none`     | Ignore mod updates                       |
+| `/durw-client update all`                          | ❌  | `none`     | Update all mods                          |
+| `/durw-client update <modId>`                      | ❌  | `none`     | Update specific mod                      |
+| `/durw-client config download-mode <mode>`         | ❌  | `none`     | Setup [downloading mod](#config)         |
+| `/durw-client config file-action <action>`         | ❌  | `none`     | Setup [file action](#config)             |
+| `/durw-client config check-update-on-boot <check>` | ❌  | `none`     | Setup [update checking on boot](#config) |
+
+</details>
+
+<details>
+  <summary>Server</summary>
+
+| Command                                            | OP | Permission | Description                              |
+|----------------------------------------------------|----|------------|------------------------------------------|
+| `/durw-server check`                               | ✅  | `none`     | Check for updates                        |
+| `/durw-server ignore <modIdOrProjectId> <ignore>`  | ✅  | `none`     | Ignore mod updates                       |
+| `/durw-server update all`                          | ✅  | `none`     | Update all mods                          |
+| `/durw-server update <modId>`                      | ✅  | `none`     | Update specific mod                      |
+| `/durw-server config download-mode <mode>`         | ✅  | `none`     | Setup [downloading mod](#config)         |
+| `/durw-server config file-action <action>`         | ✅  | `none`     | Setup [file action](#config)             |
+| `/durw-server config check-update-on-boot <check>` | ✅  | `none`     | Setup [update checking on boot](#config) |
+
+</details>
+
+### Config
+
+```json5
+{
+  // Check updates on every server/client boot
+  "checkUpdatesOnBoot": true,
+  // Download Modes
+  // PARALLEL -> Download and work with multiplied files at the same time (Default)
+  // SEQUENTIALLY -> Download and work with file one by one (Recommended for bad network) 
+  "downloadMode": "PARALLEL",
+  // File Action
+  // ARCHIVE -> Making a ZIP file with the old version of all updated mods (Default)
+  // DELETE -> Delete all old files (Best for server's that have small disk, use on own risk)
+  // DISABLE -> Add to end of old files suffix .disable
+  "fileAction": "ARCHIVE"
+}
 ```
+
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any
+contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also
+simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+[contributors-shield]: https://img.shields.io/github/contributors/syorito-hatsuki/ducky-updater-rework.svg?style=for-the-badge
+
+[contributors-url]: https://github.com/syorito-hatsuki/ducky-updater-rework/graphs/contributors
+
+[forks-shield]: https://img.shields.io/github/forks/syorito-hatsuki/ducky-updater-rework.svg?style=for-the-badge
+
+[forks-url]: https://github.com/syorito-hatsuki/ducky-updater-rework/network/members
+
+[stars-shield]: https://img.shields.io/github/stars/syorito-hatsuki/ducky-updater-rework.svg?style=for-the-badge
+
+[stars-url]: https://github.com/syorito-hatsuki/ducky-updater-rework/stargazers
+
+[issues-shield]: https://img.shields.io/github/issues/syorito-hatsuki/ducky-updater-rework.svg?style=for-the-badge
+
+[issues-url]: https://github.com/syorito-hatsuki/ducky-updater-rework/issues
+
+[license-shield]: https://img.shields.io/github/license/syorito-hatsuki/ducky-updater-rework.svg?style=for-the-badge
+
+[license-url]: https://github.com/syorito-hatsuki/ducky-updater-rework/blob/master/LICENSE
+
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+
+[linkedin-url]: https://linkedin.com/in/kit-lehto
+
+[screenshot]: https://cdn-raw.modrinth.com/data/Ex3jKEPK/images/96b83a31e02c2c618594034e31c91cb30db2c12c.png
+
+[fabric]: https://img.shields.io/badge/fabric%20api-DBD0B4?style=for-the-badge
+
+[fabric-language-kotlin]: https://img.shields.io/badge/fabric%20language%20kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white
+
+[modmenu-badges-lib]: https://img.shields.io/badge/modmenu%20badges%20lib-434956?style=for-the-badge
+
+[fstats]: https://img.shields.io/badge/fStats-111111?style=for-the-badge
+
+[discord-shield]: https://img.shields.io/discord/1032138561618726952?logo=discord&logoColor=white&style=for-the-badge&label=Discord
+
+[discord-url]: https://discord.gg/pbwnMwnUD6
+
+[modrinth-shield]: https://img.shields.io/modrinth/v/yacg?label=Modrinth&style=for-the-badge
+
+[modrinth-url]: https://modrinth.com/mod/yacg
