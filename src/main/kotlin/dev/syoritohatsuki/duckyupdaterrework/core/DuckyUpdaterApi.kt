@@ -95,11 +95,5 @@ object DuckyUpdaterApi {
         }
     }
 
-    fun setIgnore(modId: String? = null, projectId: String? = null, boolean: Boolean) = when {
-        modId != null -> Database.update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE modId IS '$modId'")
-        projectId != null -> Database.update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE projectId IS '$projectId'")
-        else -> -1
-    }
-
     private fun String.escaping(): String = replace("'", "''")
 }
