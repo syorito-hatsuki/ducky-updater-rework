@@ -5,10 +5,11 @@ import kotlinx.serialization.json.Json
 import net.fabricmc.loader.api.FabricLoader
 import java.io.File
 import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
 
 object ConfigManager {
-    private val configDir: File = FabricLoader.getInstance().configDir.toFile()
-    private val configFile = Paths.get(configDir.path, "durw", "config.json").toFile()
+    private val configDir: File = Paths.get(FabricLoader.getInstance().configDir.absolutePathString(), "durw").toFile()
+    private val configFile = Paths.get(configDir.path, "config.json").toFile()
 
     private val configJson = Json {
         encodeDefaults = true
