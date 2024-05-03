@@ -1,6 +1,9 @@
 package dev.syoritohatsuki.duckyupdaterrework
 
+import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.DownloadModeArgumentType
+import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.FileActionArgumentType
 import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.ModsIdsArgumentType
+import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
@@ -24,12 +27,25 @@ object DuckyUpdaterReWork : ModInitializer {
     override fun onInitialize() {
         logger.info("Loading common-side DURW")
 
+        ConfigManager
         Database
 
         ArgumentTypeRegistry.registerArgumentType(
             Identifier(MOD_ID, "mods_ids"),
             ModsIdsArgumentType::class.java,
             ConstantArgumentSerializer.of(ModsIdsArgumentType::modsIds)
+        )
+
+        ArgumentTypeRegistry.registerArgumentType(
+            Identifier(MOD_ID, "download_type"),
+            DownloadModeArgumentType::class.java,
+            ConstantArgumentSerializer.of(DownloadModeArgumentType::downloadType)
+        )
+
+        ArgumentTypeRegistry.registerArgumentType(
+            Identifier(MOD_ID, "file_action"),
+            FileActionArgumentType::class.java,
+            ConstantArgumentSerializer.of(FileActionArgumentType::fileAction)
         )
     }
 }
