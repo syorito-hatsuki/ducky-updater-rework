@@ -40,7 +40,8 @@ dependencies {
     val fabricVersion: String by project
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
 
-    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "hF72vnib"))
+    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2023.6.1"))
+    include(modImplementation("maven.modrinth", "fstats", "2023.12.3"))
 
     val ktorVersion: String by project
     include(implementation("io.ktor", "ktor-client-core", ktorVersion))
@@ -49,9 +50,14 @@ dependencies {
     include(implementation("io.ktor", "ktor-client-content-negotiation", ktorVersion))
     include(implementation("io.ktor", "ktor-serialization-kotlinx-json", ktorVersion))
 
-
     include(implementation("org.xerial", "sqlite-jdbc", "3.44.1.0"))
     include(implementation("com.zaxxer", "HikariCP", "5.1.0"))
+
+    implementation("net.lingala.zip4j:zip4j:2.11.5")
+
+    implementation("io.ktor:ktor-client-logging:${ktorVersion}")
+
+
 }
 
 tasks {

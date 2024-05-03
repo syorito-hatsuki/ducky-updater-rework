@@ -35,6 +35,7 @@
     ]
   },
   "custom": {
+    "fstats": 35,
     "mcb": [
       {
         "name": "Ducky House",
@@ -49,6 +50,7 @@
     "java": ">=${javaVersion}"
   },
   "recommends": {
-    "modmenu-badges-lib": "*"
+    "modmenu-badges-lib": "*",
+    "fstats-api": "*"
   }
 }
