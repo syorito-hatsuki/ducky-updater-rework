@@ -1,5 +1,8 @@
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+val javaVersion = JavaVersion.VERSION_17
+val loaderVersion: String by project
+val minecraftVersion: String by project
+val modVersion: String by project
+val mavenGroup: String by project
 
 plugins {
     id("fabric-loom")
@@ -9,18 +12,8 @@ plugins {
 
 base {
     val archivesBaseName: String by project
-    archivesName.set(archivesBaseName)
+    archivesName.set("$archivesBaseName-$modVersion-$minecraftVersion")
 }
-
-val javaVersion = JavaVersion.VERSION_17
-val loaderVersion: String by project
-val minecraftVersion: String by project
-
-val modVersion: String by project
-version = "${DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())}.$modVersion-$minecraftVersion"
-
-val mavenGroup: String by project
-group = mavenGroup
 
 repositories {
     maven("https://api.modrinth.com/maven")
@@ -49,15 +42,12 @@ dependencies {
     include(implementation("io.ktor", "ktor-client-cio", ktorVersion))
     include(implementation("io.ktor", "ktor-client-content-negotiation", ktorVersion))
     include(implementation("io.ktor", "ktor-serialization-kotlinx-json", ktorVersion))
+    include(implementation("io.ktor", "ktor-client-logging", ktorVersion))
 
     include(implementation("org.xerial", "sqlite-jdbc", "3.44.1.0"))
     include(implementation("com.zaxxer", "HikariCP", "5.1.0"))
 
-    implementation("net.lingala.zip4j:zip4j:2.11.5")
-
-    implementation("io.ktor:ktor-client-logging:${ktorVersion}")
-
-
+    include(implementation("net.lingala.zip4j", "zip4j", "2.11.5"))
 }
 
 tasks {
@@ -82,7 +72,7 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(
                 mutableMapOf(
-                    "version" to project.version, "javaVersion" to javaVersion.toString()
+                    "version" to modVersion, "javaVersion" to javaVersion.toString()
                 )
             )
         }
