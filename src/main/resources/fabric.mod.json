@@ -12,9 +12,6 @@
   "icon": "assets/duckyupdaterrework/icon.png",
   "license": "MIT Licence",
   "environment": "*",
-  "mixins": [
-    "duckyupdaterrework.mixins.json"
-  ],
   "entrypoints": {
     "main": [
       {
