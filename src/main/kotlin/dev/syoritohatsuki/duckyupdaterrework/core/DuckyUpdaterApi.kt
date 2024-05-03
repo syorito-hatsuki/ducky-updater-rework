@@ -4,40 +4,36 @@ import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Hash
-import dev.syoritohatsuki.duckyupdaterrework.core.util.toInt
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlin.io.path.name
 
 object DuckyUpdaterApi {
 
     private val modsHashes = Hash.getSha512Hashes()
 
-    fun checkForUpdates() {
-        CoroutineScope(Dispatchers.IO).launch {
-            ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList()).forEach { (hash, version) ->
+    suspend fun checkForUpdates() {
+        ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList()).forEach { (hash, version) ->
 
-                val file = version.files.firstOrNull() ?: return@forEach
+            val file = version.files.firstOrNull() ?: return@forEach
 
-                if (file.hashes.sha512 == hash) return@forEach
+            if (file.hashes.sha512 == hash) return@forEach
 
-                Database.insertOrUpdateProject(
-                    modId = modsHashes[hash]?.id,
-                    projectId = version.projectId,
-                    name = (modsHashes[hash]?.name ?: version.name).escaping(),
-                    changelog = version.changelog.escaping(),
-                    fileHash = hash,
-                    version = version.versionNumber,
-                    url = file.url,
-                    outdated = true
-                )
+            Database.insertOrUpdateProject(
+                modId = modsHashes[hash]?.metadata?.id,
+                projectId = version.projectId,
+                name = (modsHashes[hash]?.metadata?.name ?: version.name).escaping(),
+                changelog = version.changelog.escaping(),
+                fileHash = hash,
+                version = version.versionNumber,
+                url = file.url,
+                fileName = modsHashes[hash]?.origin?.paths?.get(0)?.name,
+                outdated = true
+            )
 
-                version.dependencies.checkForDependency(version.projectId)
+            version.dependencies.checkForDependency(version.projectId)
 
-            }
-
-            fixNullModNames()
         }
+
+        fixNullModNames()
     }
 
     private suspend fun List<Version.Dependency>.checkForDependency(projectId: String) {
