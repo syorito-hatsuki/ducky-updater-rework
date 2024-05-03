@@ -14,8 +14,11 @@ import java.sql.ResultSet
 import kotlin.jvm.optionals.getOrNull
 import kotlin.system.exitProcess
 
-typealias ModId = String
+typealias ProjectId = String
 typealias DependencyId = String
+typealias ModId = String
+typealias Url = String
+typealias Filename = String
 
 @Suppress("SqlSourceToSinkFlow", "SqlNoDataSourceInspection", "SqlResolve")
 object Database {
