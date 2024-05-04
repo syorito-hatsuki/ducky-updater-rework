@@ -17,7 +17,6 @@ import dev.syoritohatsuki.duckyupdaterrework.server.message.RESET
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
