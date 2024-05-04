@@ -3,6 +3,8 @@ val loaderVersion: String by project
 val minecraftVersion: String by project
 val modVersion: String by project
 val mavenGroup: String by project
+val fabricKotlinVersion: String by project
+val fabricVersion: String by project
 
 plugins {
     id("fabric-loom")
@@ -27,10 +29,8 @@ dependencies {
 
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
-    val fabricKotlinVersion: String by project
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
 
-    val fabricVersion: String by project
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
 
     include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2023.6.1"))
@@ -79,7 +79,10 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(
                 mutableMapOf(
-                    "version" to modVersion, "javaVersion" to javaVersion.toString()
+                    "version" to modVersion,
+                    "loaderVersion" to loaderVersion,
+                    "fabricKotlinVersion" to fabricKotlinVersion,
+                    "javaVersion" to javaVersion.toString(),
                 )
             )
         }
