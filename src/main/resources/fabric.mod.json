@@ -1,21 +1,41 @@
 {
   "schemaVersion": 1,
-  "id": "ducky-updater",
+  "id": "ducky-updater-rework",
   "version": "${version}",
-  "name": "Ducky Updater",
+  "name": "Ducky Updater: ReWork",
   "authors": [
     "Syorito Hatsuki"
   ],
   "contact": {
-    "homepage": "https://syorito-hatsuki.dev/"
+    "homepage": "https://github.com/syorito-hatsuki",
+    "issues": "https://github.com/syorito-hatsuki/ducky-updater-rework/issues",
+    "sources": "https://github.com/syorito-hatsuki/ducky-updater-rework"
   },
-  "icon": "assets/duckyupdater/icon.png",
+  "icon": "assets/duckyupdaterrework/icon.png",
   "license": "MIT Licence",
-  "environment": "server",
-  "mixins": [
-    "duckyupdater.mixins.json"
-  ],
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.syoritohatsuki.duckyupdaterrework.client.DuckyUpdaterReWorkClient"
+      }
+    ],
+    "server": [
+      {
+        "adapter": "kotlin",
+        "value": "dev.syoritohatsuki.duckyupdaterrework.server.DuckyUpdaterReWorkServer"
+      }
+    ]
+  },
   "custom": {
+    "fstats": 35,
     "mcb": [
       {
         "name": "Ducky House",
@@ -25,11 +45,12 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=${loaderVersion}",
+    "fabricloader": "*",
     "minecraft": ">=1.20",
     "java": ">=${javaVersion}"
   },
   "recommends": {
-    "modmenu-badges-lib": "*"
+    "modmenu-badges-lib": "*",
+    "fstats-api": "*"
   }
 }

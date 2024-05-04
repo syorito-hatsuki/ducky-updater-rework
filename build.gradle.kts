@@ -1,5 +1,8 @@
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+val javaVersion = JavaVersion.VERSION_17
+val loaderVersion: String by project
+val minecraftVersion: String by project
+val modVersion: String by project
+val mavenGroup: String by project
 
 plugins {
     id("fabric-loom")
@@ -9,18 +12,8 @@ plugins {
 
 base {
     val archivesBaseName: String by project
-    archivesName.set(archivesBaseName)
+    archivesName.set("$archivesBaseName-$modVersion-$minecraftVersion")
 }
-
-val javaVersion = JavaVersion.VERSION_17
-val loaderVersion: String by project
-val minecraftVersion: String by project
-
-val modVersion: String by project
-version = "${DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())}.$modVersion-$minecraftVersion"
-
-val mavenGroup: String by project
-group = mavenGroup
 
 repositories {
     maven("https://api.modrinth.com/maven")
@@ -34,7 +27,34 @@ dependencies {
 
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
 
-    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "hF72vnib"))
+    val fabricKotlinVersion: String by project
+    modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+
+    val fabricVersion: String by project
+    modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
+
+    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2023.6.1"))
+    include(modImplementation("maven.modrinth", "fstats", "2023.12.3"))
+
+    val ktorVersion: String by project
+    include(implementation("io.ktor", "ktor-client-cio-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-client-content-negotiation-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-client-core-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-events-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-http-cio-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-http-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-io-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-network-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-network-tls-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-serialization-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-serialization-kotlinx-json-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-serialization-kotlinx-jvm", ktorVersion))
+    include(implementation("io.ktor", "ktor-utils-jvm", ktorVersion))
+
+    include(implementation("org.xerial", "sqlite-jdbc", "3.44.1.0"))
+    include(implementation("com.zaxxer", "HikariCP", "5.1.0"))
+
+    include(implementation("net.lingala.zip4j", "zip4j", "2.11.5"))
 }
 
 tasks {
@@ -59,9 +79,7 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(
                 mutableMapOf(
-                    "version" to project.version,
-                    "loaderVersion" to loaderVersion,
-                    "javaVersion" to javaVersion.toString()
+                    "version" to modVersion, "javaVersion" to javaVersion.toString()
                 )
             )
         }
@@ -74,5 +92,9 @@ tasks {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
         withSourcesJar()
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
