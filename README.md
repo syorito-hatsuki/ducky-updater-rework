@@ -180,6 +180,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 [discord-url]: https://discord.gg/pbwnMwnUD6
 
-[modrinth-shield]: https://img.shields.io/modrinth/v/yacg?label=Modrinth&style=for-the-badge
+[modrinth-shield]: https://img.shields.io/modrinth/v/ducky-updater-rework?label=Modrinth&style=for-the-badge
 
-[modrinth-url]: https://modrinth.com/mod/yacg
+[modrinth-url]: https://modrinth.com/mod/ducky-updater-rework
