@@ -8,9 +8,6 @@ import dev.syoritohatsuki.duckyupdaterrework.core.storage.Filename
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.ProjectId
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Url
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader.Mode.*
-import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions.archiveOldMods
-import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions.deleteOldMod
-import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions.disableOldMod
 import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_GREEN
 import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_RED
 import dev.syoritohatsuki.duckyupdaterrework.server.message.RESET
@@ -28,8 +25,6 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.io.*
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 object Downloader {
     private val modsDirectory = FabricLoader.getInstance().gameDir.resolve("mods").toFile()
@@ -73,9 +68,7 @@ object Downloader {
 
         val failed = mutableSetOf<Fail>()
         CoroutineScope(Dispatchers.IO).launch {
-            val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             val mode = ConfigManager.read().downloadMode
-            val action = ConfigManager.read().fileAction
 
             context.source.sendMessage(Text.literal("Download starting...").formatted(Formatting.GREEN))
             DuckyUpdaterReWork.logger.info("${BRIGHT_GREEN}Download starting...$RESET")
@@ -89,13 +82,9 @@ object Downloader {
                             context.source.sendMessageWithLog("Downloaded: $filename")
                             Database.markProjectAsUpdated(projectId)
                             if (filename == oldFile) return@forEach
-                            when (action) {
-                                FileActions.FileAction.DELETE -> deleteOldMod(oldFile)
-                                FileActions.FileAction.DISABLE -> disableOldMod(oldFile)
-                                FileActions.FileAction.ARCHIVE -> archiveOldMods(oldFile, date)
-                            }
+                            FileActions.prepareAction(oldFile)
                         } else {
-                            context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode and $action action")
+                            context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode")
                         }
                     } catch (e: Exception) {
                         DuckyUpdaterReWork.logger.error(e)
@@ -113,14 +102,10 @@ object Downloader {
                                 Database.markProjectAsUpdated(projectId)
                                 if (filename == oldFile) return@async
                                 mutex.withLock {
-                                    when (action) {
-                                        FileActions.FileAction.DELETE -> deleteOldMod(oldFile)
-                                        FileActions.FileAction.DISABLE -> disableOldMod(oldFile)
-                                        FileActions.FileAction.ARCHIVE -> archiveOldMods(oldFile, date)
-                                    }
+                                    FileActions.prepareAction(oldFile)
                                 }
                             } else {
-                                context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode and $action action")
+                                context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode")
                             }
                         } catch (e: RuntimeException) {
                             DuckyUpdaterReWork.logger.error(e)

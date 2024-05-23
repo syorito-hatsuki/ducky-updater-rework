@@ -5,6 +5,10 @@ import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.FileActionArg
 import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.ModsIdsArgumentType
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
+import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.loader.api.FabricLoader
@@ -29,6 +33,10 @@ object DuckyUpdaterReWork : ModInitializer {
 
         ConfigManager
         Database
+
+        CoroutineScope(Dispatchers.IO).launch {
+            FileActions.run()
+        }
 
         ArgumentTypeRegistry.registerArgumentType(
             Identifier(MOD_ID, "mods_ids"),
