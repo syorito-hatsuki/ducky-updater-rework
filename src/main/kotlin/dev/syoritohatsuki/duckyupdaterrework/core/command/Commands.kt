@@ -4,12 +4,12 @@ import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
-import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.DownloadModeArgumentType
-import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.FileActionArgumentType
-import dev.syoritohatsuki.duckyupdaterrework.core.command.argument.ModsIdsArgumentType
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager.write
-import dev.syoritohatsuki.duckyupdaterrework.core.dsl.*
+import dev.syoritohatsuki.duckyupdaterrework.core.dsl.bool
+import dev.syoritohatsuki.duckyupdaterrework.core.dsl.greedyString
+import dev.syoritohatsuki.duckyupdaterrework.core.dsl.literal
+import dev.syoritohatsuki.duckyupdaterrework.core.dsl.word
 import dev.syoritohatsuki.duckyupdaterrework.core.lang.TaskLockedException
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader
@@ -28,33 +28,35 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
     /*   Config commands :)   */
     literal("config") {
         literal("download-mode") {
-            argument("mode", DownloadModeArgumentType.downloadType()) {
-                executes {
-                    val mode = DownloadModeArgumentType.getDownloadType(it, "mode")
-                    ConfigManager.read().copy(downloadMode = mode).write()
-                    it.source.sendMessage(Text.literal("Download mode: ").apply {
-                        when (mode) {
-                            Downloader.Mode.SEQUENTIALLY -> Text.literal("Sequentially").formatted(Formatting.AQUA)
-                            Downloader.Mode.PARALLEL -> Text.literal("Parallel").formatted(Formatting.AQUA)
-                        }
-                    })
-                    1
+            Downloader.Mode.values().forEach { mode ->
+                literal(mode.name) {
+                    executes {
+                        ConfigManager.read().copy(downloadMode = mode).write()
+                        it.source.sendMessage(Text.literal("Download mode: ").apply {
+                            when (mode) {
+                                Downloader.Mode.SEQUENTIALLY -> Text.literal("Sequentially").formatted(Formatting.AQUA)
+                                Downloader.Mode.PARALLEL -> Text.literal("Parallel").formatted(Formatting.AQUA)
+                            }
+                        })
+                        1
+                    }
                 }
             }
         }
         literal("file-action") {
-            argument("action", FileActionArgumentType.fileAction()) {
-                executes {
-                    val action = FileActionArgumentType.getFileAction(it, "action")
-                    ConfigManager.read().copy(fileAction = action).write()
-                    it.source.sendMessage(Text.literal("File Action after download: ").apply {
-                        when (action) {
-                            FileActions.FileAction.DELETE -> Text.literal("Delete").formatted(Formatting.AQUA)
-                            FileActions.FileAction.DISABLE -> Text.literal("Disable").formatted(Formatting.AQUA)
-                            FileActions.FileAction.ARCHIVE -> Text.literal("Archive").formatted(Formatting.AQUA)
-                        }
-                    })
-                    1
+            FileActions.FileAction.values().forEach { action ->
+                literal(action.name) {
+                    executes {
+                        ConfigManager.read().copy(fileAction = action).write()
+                        it.source.sendMessage(Text.literal("File Action after download: ").apply {
+                            when (action) {
+                                FileActions.FileAction.DELETE -> Text.literal("Delete").formatted(Formatting.AQUA)
+                                FileActions.FileAction.DISABLE -> Text.literal("Disable").formatted(Formatting.AQUA)
+                                FileActions.FileAction.ARCHIVE -> Text.literal("Archive").formatted(Formatting.AQUA)
+                            }
+                        })
+                        1
+                    }
                 }
             }
         }
@@ -105,22 +107,11 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
 
     /*   Updating :3   */
     literal("update") {
-        argument("modsIds", ModsIdsArgumentType.modsIds()) {
-            executes {
-                try {
-                    TaskManager.updateSpecificMods(it, *ModsIdsArgumentType.getModsIds(it, "modsIds").toTypedArray())
-                } catch (e: TaskLockedException) {
-                    it.source.sendMessage(e.getMinecraftText())
-                    DuckyUpdaterReWork.logger.error(e.message)
-                }
-                0
-            }
-        }
-        string("modsIdsString") {
+        greedyString("modIds") {
             executes {
                 try {
                     TaskManager.updateSpecificMods(
-                        it, *StringArgumentType.getString(it, "modsIdsString").split(' ').toTypedArray()
+                        it, *StringArgumentType.getString(it, "modsIds").split(" ").toTypedArray()
                     )
                 } catch (e: TaskLockedException) {
                     it.source.sendMessage(e.getMinecraftText())
