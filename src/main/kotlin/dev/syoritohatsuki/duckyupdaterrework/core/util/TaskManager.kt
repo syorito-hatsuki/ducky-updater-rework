@@ -75,11 +75,73 @@ object TaskManager {
     }
 
     @Throws(TaskLockedException::class)
-    fun updateSpecificMods(context: CommandContext<out CommandSource>, vararg mods: String) {
+    fun updateSpecificModsByModIds(context: CommandContext<out CommandSource>, vararg mods: String) {
         throwIfLocked("Updating specific mods (${mods.joinToString()})")
         context.source.sendMessage(Text.literal("Getting date from DB...").formatted(Formatting.GREEN))
         logger.info("${BRIGHT_GREEN}Getting date from DB...$RESET")
         Downloader.download(context, Database.getDownloadingDataByModIds(mods.toSet()))
+        unlock()
+    }
+
+    @Throws(TaskLockedException::class)
+    fun updateSpecificModsByProjectIds(context: CommandContext<out CommandSource>, vararg projectIds: String) {
+        throwIfLocked("Updating specific mods by ids (${projectIds.joinToString()})")
+        context.source.sendMessage(Text.literal("Getting date from DB...").formatted(Formatting.GREEN))
+        logger.info("${BRIGHT_GREEN}Getting date from DB...$RESET")
+        Downloader.download(context, Database.getDownloadingDataByProjectIds(projectIds.toSet()))
+        unlock()
+    }
+
+    @Throws(TaskLockedException::class)
+    fun addToIgnoreByProjectId(context: CommandContext<out CommandSource>, projectId: String, status: Boolean) {
+        throwIfLocked("Adding $projectId to ignore")
+
+        if (Database.setIgnore(projectId = projectId, status = status) == -1) {
+            context.source.sendMessage(Text.literal("Unexpected error...").formatted(Formatting.RED))
+            logger.info("${BRIGHT_RED}Unexpected error...$RESET")
+            unlock()
+            return
+        }
+
+        when (status) {
+            true -> {
+                context.source.sendMessage(
+                    Text.literal("Project $projectId added to ignore list").formatted(Formatting.GREEN)
+                )
+                logger.info("${BRIGHT_GREEN}Project $projectId added to ignore list$RESET")
+            }
+
+            false -> {
+                context.source.sendMessage(
+                    Text.literal("Project $projectId removed to ignore list").formatted(Formatting.GREEN)
+                )
+                logger.info("${BRIGHT_GREEN}Project $projectId removed to ignore list$RESET")
+            }
+        }
+        unlock()
+    }
+
+    @Throws(TaskLockedException::class)
+    fun addToIgnoreByModId(context: CommandContext<out CommandSource>, modId: String, status: Boolean) {
+        throwIfLocked("Adding $modId to ignore")
+
+        if (Database.setIgnore(modId = modId, status = status) == -1) {
+            context.source.sendMessage(Text.literal("Unexpected error...").formatted(Formatting.RED))
+            logger.info("${BRIGHT_RED}Unexpected error...$RESET")
+            unlock()
+            return
+        }
+
+        if (status) {
+            context.source.sendMessage(Text.literal("Project $modId added to ignore list").formatted(Formatting.GREEN))
+            logger.info("${BRIGHT_GREEN}Project $modId added to ignore list$RESET")
+        } else {
+            context.source.sendMessage(
+                Text.literal("Project $modId removed to ignore list").formatted(Formatting.GREEN)
+            )
+            logger.info("${BRIGHT_GREEN}Project $modId removed to ignore list$RESET")
+        }
+
         unlock()
     }
 }

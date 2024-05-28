@@ -11,7 +11,6 @@ import dev.syoritohatsuki.duckyupdaterrework.core.dsl.greedyString
 import dev.syoritohatsuki.duckyupdaterrework.core.dsl.literal
 import dev.syoritohatsuki.duckyupdaterrework.core.dsl.word
 import dev.syoritohatsuki.duckyupdaterrework.core.lang.TaskLockedException
-import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader
 import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions
 import dev.syoritohatsuki.duckyupdaterrework.core.util.TaskManager
@@ -94,12 +93,43 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
 
     /*   Ignoring -_-   */
     literal("ignore") {
-        word("modIdOrProjectId") {
-            bool("ignore") {
-                executes {
-                    Database.setIgnore(
-                        StringArgumentType.getString(it, "modIdOrProjectId"), BoolArgumentType.getBool(it, "ignore")
-                    )
+        literal("by") {
+            literal("mod-id") {
+                word("modId") {
+                    bool("ignore") {
+                        executes {
+                            try {
+                                TaskManager.addToIgnoreByModId(
+                                    it,
+                                    StringArgumentType.getString(it, "modId"),
+                                    BoolArgumentType.getBool(it, "ignore")
+                                )
+                            } catch (e: TaskLockedException) {
+                                it.source.sendMessage(e.getMinecraftText())
+                                DuckyUpdaterReWork.logger.error(e.message)
+                            }
+                            0
+                        }
+                    }
+                }
+            }
+            literal("project-id") {
+                word("projectId") {
+                    bool("ignore") {
+                        executes {
+                            try {
+                                TaskManager.addToIgnoreByProjectId(
+                                    it,
+                                    StringArgumentType.getString(it, "projectId"),
+                                    BoolArgumentType.getBool(it, "ignore")
+                                )
+                            } catch (e: TaskLockedException) {
+                                it.source.sendMessage(e.getMinecraftText())
+                                DuckyUpdaterReWork.logger.error(e.message)
+                            }
+                            0
+                        }
+                    }
                 }
             }
         }
@@ -107,17 +137,36 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
 
     /*   Updating :3   */
     literal("update") {
-        greedyString("modIds") {
-            executes {
-                try {
-                    TaskManager.updateSpecificMods(
-                        it, *StringArgumentType.getString(it, "modsIds").split(" ").toTypedArray()
-                    )
-                } catch (e: TaskLockedException) {
-                    it.source.sendMessage(e.getMinecraftText())
-                    DuckyUpdaterReWork.logger.error(e.message)
+        literal("by") {
+            literal("mod-ids") {
+                greedyString("modIds") {
+                    executes {
+                        try {
+                            TaskManager.updateSpecificModsByModIds(
+                                it, *StringArgumentType.getString(it, "modsIds").split(" ").toTypedArray()
+                            )
+                        } catch (e: TaskLockedException) {
+                            it.source.sendMessage(e.getMinecraftText())
+                            DuckyUpdaterReWork.logger.error(e.message)
+                        }
+                        0
+                    }
                 }
-                0
+            }
+            literal("project-ids") {
+                greedyString("projectIds") {
+                    executes {
+                        try {
+                            TaskManager.updateSpecificModsByProjectIds(
+                                it, *StringArgumentType.getString(it, "projectIds").split(" ").toTypedArray()
+                            )
+                        } catch (e: TaskLockedException) {
+                            it.source.sendMessage(e.getMinecraftText())
+                            DuckyUpdaterReWork.logger.error(e.message)
+                        }
+                        0
+                    }
+                }
             }
         }
         literal("all") {

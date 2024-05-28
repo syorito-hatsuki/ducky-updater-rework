@@ -145,10 +145,10 @@ object Database {
         update("UPDATE projects SET outdated = 0 WHERE projectId = '$projectId'")
     }
 
-    fun setIgnore(modIdOrProjectId: String? = null, boolean: Boolean): Int = when {
-        modIdOrProjectId == null -> -1
-        Regex("[a-z][a-z0-9-_]{1,63}").matches(modIdOrProjectId) -> update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE modId IS '$modIdOrProjectId'")
-        else -> update("UPDATE projects SET ignore = '${boolean.toInt()}' WHERE projectId IS '$modIdOrProjectId'")
+    fun setIgnore(modId: String? = null, projectId: String? = null, status: Boolean): Int = when {
+        projectId != null -> update("UPDATE projects SET ignore = '${status.toInt()}' WHERE projectId IS '$projectId'")
+        modId != null -> update("UPDATE projects SET ignore = '${status.toInt()}' WHERE modId IS '$modId'")
+        else -> -1
     }
 
     private fun isProjectExist(projectId: ProjectId? = null, modId: ModId? = null): Boolean {
