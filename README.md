@@ -74,30 +74,34 @@ Mod that give possibility to update mods without using third-party launchers
 <details>
   <summary>Client</summary>
 
-| Command                                            | OP | Permission | Description                              |
-|----------------------------------------------------|----|------------|------------------------------------------|
-| `/durw-client check`                               | ❌  | `none`     | Check for updates                        |
-| `/durw-client ignore <modIdOrProjectId> <ignore>`  | ❌  | `none`     | Ignore mod updates                       |
-| `/durw-client update all`                          | ❌  | `none`     | Update all mods                          |
-| `/durw-client update <modId>`                      | ❌  | `none`     | Update specific mod                      |
-| `/durw-client config download-mode <mode>`         | ❌  | `none`     | Setup [downloading mod](#config)         |
-| `/durw-client config file-action <action>`         | ❌  | `none`     | Setup [file action](#config)             |
-| `/durw-client config check-update-on-boot <check>` | ❌  | `none`     | Setup [update checking on boot](#config) |
+| Command                                                  | OP | Permission | Description                              |
+|----------------------------------------------------------|----|------------|------------------------------------------|
+| `/durw-client check`                                     | ❌  | `none`     | Check for updates                        |
+| `/durw-client ignore by mod-id <modId> <ignore>`         | ❌  | `none`     | Ignore mod updates by mod id             |
+| `/durw-client ignore by project-id <projectId> <ignore>` | ❌  | `none`     | Ignore mod updates by project id         |
+| `/durw-client update all`                                | ❌  | `none`     | Update all mods                          |
+| `/durw-client update by mod-ids <modIds>`                | ❌  | `none`     | Update specific mod(s) by mod ids        |
+| `/durw-client update by project-ids <projectIds>`        | ❌  | `none`     | Update specific mod(s) by project ids    |
+| `/durw-client config download-mode <mode>`               | ❌  | `none`     | Setup [downloading mod](#config)         |
+| `/durw-client config file-action <action>`               | ❌  | `none`     | Setup [file action](#config)             |
+| `/durw-client config check-update-on-boot <check>`       | ❌  | `none`     | Setup [update checking on boot](#config) |
 
 </details>
 
 <details>
   <summary>Server</summary>
 
-| Command                                            | OP | Permission | Description                              |
-|----------------------------------------------------|----|------------|------------------------------------------|
-| `/durw-server check`                               | ✅  | `none`     | Check for updates                        |
-| `/durw-server ignore <modIdOrProjectId> <ignore>`  | ✅  | `none`     | Ignore mod updates                       |
-| `/durw-server update all`                          | ✅  | `none`     | Update all mods                          |
-| `/durw-server update <modId>`                      | ✅  | `none`     | Update specific mod                      |
-| `/durw-server config download-mode <mode>`         | ✅  | `none`     | Setup [downloading mod](#config)         |
-| `/durw-server config file-action <action>`         | ✅  | `none`     | Setup [file action](#config)             |
-| `/durw-server config check-update-on-boot <check>` | ✅  | `none`     | Setup [update checking on boot](#config) |
+| Command                                                  | OP | Permission | Description                              |
+|----------------------------------------------------------|----|------------|------------------------------------------|
+| `/durw-server check`                                     | ✅  | `none`     | Check for updates                        |
+| `/durw-server ignore by mod-id <modId> <ignore>`         | ✅  | `none`     | Ignore mod updates by mod id             |
+| `/durw-server ignore by project-id <projectId> <ignore>` | ✅  | `none`     | Ignore mod updates by project id         |
+| `/durw-server update all`                                | ✅  | `none`     | Update all mods                          |
+| `/durw-server update by mod-ids <modIds>`                | ✅  | `none`     | Update specific mod(s) by mod ids        |
+| `/durw-server update by project-ids <projectIds>`        | ✅  | `none`     | Update specific mod(s) by project ids    |
+| `/durw-server config download-mode <mode>`               | ✅  | `none`     | Setup [downloading mod](#config)         |
+| `/durw-server config file-action <action>`               | ✅  | `none`     | Setup [file action](#config)             |
+| `/durw-server config check-update-on-boot <check>`       | ✅  | `none`     | Setup [update checking on boot](#config) |
 
 </details>
 
