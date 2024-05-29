@@ -15,6 +15,10 @@ import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader
 import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions
 import dev.syoritohatsuki.duckyupdaterrework.core.util.TaskManager
 import dev.syoritohatsuki.duckyupdaterrework.core.util.sendMessage
+import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_CYAN
+import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_GREEN
+import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_RED
+import dev.syoritohatsuki.duckyupdaterrework.server.message.RESET
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,11 +36,21 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                     executes {
                         ConfigManager.read().copy(downloadMode = mode).write()
                         it.source.sendMessage(Text.literal("Download mode: ").apply {
-                            when (mode) {
-                                Downloader.Mode.SEQUENTIALLY -> Text.literal("Sequentially").formatted(Formatting.AQUA)
-                                Downloader.Mode.PARALLEL -> Text.literal("Parallel").formatted(Formatting.AQUA)
-                            }
+                            append(
+                                when (mode) {
+                                    Downloader.Mode.SEQUENTIALLY -> Text.literal("Sequentially")
+                                        .formatted(Formatting.AQUA)
+
+                                    Downloader.Mode.PARALLEL -> Text.literal("Parallel").formatted(Formatting.AQUA)
+                                }
+                            )
                         })
+                        DuckyUpdaterReWork.logger.info(
+                            "Download mode: " + when (mode) {
+                                Downloader.Mode.SEQUENTIALLY -> "${BRIGHT_CYAN}Sequentially$RESET"
+                                Downloader.Mode.PARALLEL -> "${BRIGHT_CYAN}Parallel$RESET"
+                            }
+                        )
                         1
                     }
                 }
@@ -48,12 +62,21 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                     executes {
                         ConfigManager.read().copy(fileAction = action).write()
                         it.source.sendMessage(Text.literal("File Action after download: ").apply {
-                            when (action) {
-                                FileActions.FileAction.DELETE -> Text.literal("Delete").formatted(Formatting.AQUA)
-                                FileActions.FileAction.DISABLE -> Text.literal("Disable").formatted(Formatting.AQUA)
-                                FileActions.FileAction.ARCHIVE -> Text.literal("Archive").formatted(Formatting.AQUA)
-                            }
+                            append(
+                                when (action) {
+                                    FileActions.FileAction.DELETE -> Text.literal("Delete").formatted(Formatting.AQUA)
+                                    FileActions.FileAction.DISABLE -> Text.literal("Disable").formatted(Formatting.AQUA)
+                                    FileActions.FileAction.ARCHIVE -> Text.literal("Archive").formatted(Formatting.AQUA)
+                                }
+                            )
                         })
+                        DuckyUpdaterReWork.logger.info(
+                            "File Action after download: " + when (action) {
+                                FileActions.FileAction.DELETE -> "${BRIGHT_CYAN}Delete$RESET"
+                                FileActions.FileAction.DISABLE -> "${BRIGHT_CYAN}Disable$RESET"
+                                FileActions.FileAction.ARCHIVE -> "${BRIGHT_CYAN}Archive$RESET"
+                            }
+                        )
                         1
                     }
                 }
@@ -65,11 +88,19 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                     val check = BoolArgumentType.getBool(it, "check")
                     ConfigManager.read().copy(checkUpdatesOnBoot = check).write()
                     it.source.sendMessage(Text.literal("Updated checking on boot: ").apply {
-                        when (check) {
-                            true -> Text.literal("Enabled").formatted(Formatting.GREEN)
-                            false -> Text.literal("Disabled").formatted(Formatting.RED)
-                        }
+                        append(
+                            when (check) {
+                                true -> Text.literal("Enabled").formatted(Formatting.GREEN)
+                                false -> Text.literal("Disabled").formatted(Formatting.RED)
+                            }
+                        )
                     })
+                    DuckyUpdaterReWork.logger.info(
+                        "Updated checking on boot: " + when (check) {
+                            true -> "${BRIGHT_GREEN}Enabled$RESET"
+                            false -> "${BRIGHT_RED}Disabled$RESET"
+                        }
+                    )
                     1
                 }
             }
