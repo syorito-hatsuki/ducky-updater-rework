@@ -106,16 +106,20 @@ object TaskManager {
         when (status) {
             true -> {
                 context.source.sendMessage(
-                    Text.literal("Project $projectId added to ignore list").formatted(Formatting.GREEN)
+                    Text.empty().append(Text.literal("Project "))
+                        .append(Text.literal(projectId).formatted(Formatting.GREEN))
+                        .append(Text.literal(" added to ignore list"))
                 )
-                logger.info("${BRIGHT_GREEN}Project $projectId added to ignore list$RESET")
+                logger.info("Project $projectId ${BRIGHT_GREEN}added$RESET to ignore list")
             }
 
             false -> {
                 context.source.sendMessage(
-                    Text.literal("Project $projectId removed to ignore list").formatted(Formatting.GREEN)
+                    Text.empty().append(Text.literal("Project "))
+                        .append(Text.literal(projectId).formatted(Formatting.RED))
+                        .append(Text.literal(" removed to ignore list"))
                 )
-                logger.info("${BRIGHT_GREEN}Project $projectId removed to ignore list$RESET")
+                logger.info("Project $projectId ${BRIGHT_RED}removed$RESET to ignore list")
             }
         }
         unlock()
@@ -133,13 +137,19 @@ object TaskManager {
         }
 
         if (status) {
-            context.source.sendMessage(Text.literal("Project $modId added to ignore list").formatted(Formatting.GREEN))
-            logger.info("${BRIGHT_GREEN}Project $modId added to ignore list$RESET")
+            context.source.sendMessage(
+                Text.empty().append(Text.literal("Project "))
+                    .append(Text.literal(modId).formatted(Formatting.GREEN))
+                    .append(Text.literal(" added to ignore list"))
+            )
+            logger.info("Project $modId ${BRIGHT_GREEN}added$RESET to ignore list")
         } else {
             context.source.sendMessage(
-                Text.literal("Project $modId removed to ignore list").formatted(Formatting.GREEN)
+                Text.empty().append(Text.literal("Project "))
+                    .append(Text.literal(modId).formatted(Formatting.RED))
+                    .append(Text.literal(" removed to ignore list"))
             )
-            logger.info("${BRIGHT_GREEN}Project $modId removed to ignore list$RESET")
+            logger.info("Project $modId ${BRIGHT_RED}removed$RESET to ignore list")
         }
 
         unlock()
