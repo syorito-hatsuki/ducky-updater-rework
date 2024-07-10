@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.core.util
 
+import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -36,7 +37,14 @@ object FileActions {
     }
 
     fun run() {
-        val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        var date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        if (System.getProperty("os.name").lowercase().contains("windows")) date = date.replace(":", "-")
+
+        DuckyUpdaterReWork.logger.debug("")
+        DuckyUpdaterReWork.logger.debug("OS: ${System.getProperty("os.name")}")
+        DuckyUpdaterReWork.logger.debug("Filename for system zip $date")
+        DuckyUpdaterReWork.logger.debug("")
+
         val action = ConfigManager.read().fileAction
         prepare.apply {
             forEach {
