@@ -26,6 +26,8 @@ object Database {
             jdbcUrl = "jdbc:sqlite:${FabricLoader.getInstance().configDir.toAbsolutePath()}/durw/cache.db"
             maximumPoolSize = 1
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+            maxLifetime = 60000
+            idleTimeout = 45000
             validate()
         })
     }
