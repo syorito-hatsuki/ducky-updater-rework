@@ -2,6 +2,7 @@ package dev.syoritohatsuki.duckyupdaterrework.client
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.logger
 import dev.syoritohatsuki.duckyupdaterrework.core.command.commands
+import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.dsl.register
 import dev.syoritohatsuki.duckyupdaterrework.core.dsl.rootLiteral
 import dev.syoritohatsuki.duckyupdaterrework.core.util.TaskManager
@@ -25,7 +26,7 @@ object DuckyUpdaterReWorkClient : ClientModInitializer {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            TaskManager.updateProjectsDB()
+            if (ConfigManager.read().checkUpdatesOnBoot) TaskManager.updateProjectsDB()
         }
     }
 }
