@@ -5,6 +5,8 @@ import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Hash
+import java.io.File
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
 
 object DuckyUpdaterApi {
@@ -31,6 +33,8 @@ object DuckyUpdaterApi {
                 fileHash = hash,
                 version = version.versionNumber,
                 url = file.url,
+                filePath = modsHashes[hash]?.origin?.paths?.get(0)?.toAbsolutePath()?.absolutePathString()
+                    ?.substringBeforeLast(File.separator),
                 fileName = modsHashes[hash]?.origin?.paths?.get(0)?.name,
                 outdated = true
             )

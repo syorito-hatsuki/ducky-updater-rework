@@ -18,7 +18,6 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.command.CommandSource
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
@@ -27,8 +26,6 @@ import net.minecraft.util.Formatting
 import java.io.*
 
 object Downloader {
-    private val modsDirectory = FabricLoader.getInstance().gameDir.resolve("mods").toFile()
-
     private val mutex = Mutex()
     private val client = HttpClient(CIO) {
         expectSuccess = true
@@ -72,23 +69,24 @@ object Downloader {
 
             context.source.sendMessage(Text.literal("Download starting...").formatted(Formatting.GREEN))
             DuckyUpdaterReWork.logger.info("${BRIGHT_GREEN}Download starting...$RESET")
+            val directoriesByProjectId = Database.getDirectoriesByProjectId(mapOfUrlAndOldFile.keys)
 
             when (mode) {
                 SEQUENTIALLY -> mapOfUrlAndOldFile.forEach { (projectId, data) ->
                     val (url, oldFile) = data
                     val filename = url.substringAfterLast('/')
                     try {
-                        if (downloadFile(url, filename)) {
+                        if (downloadFile(url, filename, directoriesByProjectId[projectId])) {
                             context.source.sendMessageWithLog("Downloaded: $filename")
                             Database.markProjectAsUpdated(projectId)
                             if (filename == oldFile) return@forEach
-                            FileActions.prepareAction(oldFile)
+                            FileActions.prepareAction(oldFile, directoriesByProjectId[projectId])
                         } else {
                             context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode")
                         }
                     } catch (e: Exception) {
                         DuckyUpdaterReWork.logger.error(e)
-                        failed.add(Fail(filename, url, e.localizedMessage))
+                        failed.add(Fail(filename, url, e.stackTraceToString()))
                     }
                 }
 
@@ -97,19 +95,19 @@ object Downloader {
                         val (url, oldFile) = data
                         val filename = url.substringAfterLast('/')
                         try {
-                            if (downloadFile(url, filename)) {
+                            if (downloadFile(url, filename, directoriesByProjectId[projectId])) {
                                 context.source.sendMessageWithLog("Downloaded: $filename")
                                 Database.markProjectAsUpdated(projectId)
                                 if (filename == oldFile) return@async
                                 mutex.withLock {
-                                    FileActions.prepareAction(oldFile)
+                                    FileActions.prepareAction(oldFile, directoriesByProjectId[projectId])
                                 }
                             } else {
                                 context.source.sendMessageWithLog("Phantom error with: $filename in $mode mode")
                             }
                         } catch (e: RuntimeException) {
                             DuckyUpdaterReWork.logger.error(e)
-                            failed.add(Fail(filename, url, e.localizedMessage))
+                            failed.add(Fail(filename, url, e.stackTraceToString()))
                         }
                     }
                 }.awaitAll()
@@ -141,10 +139,18 @@ object Downloader {
     }
 
     @Throws(RuntimeException::class)
-    private suspend fun downloadFile(url: String, fileName: String): Boolean = try {
-        File(modsDirectory, fileName).writeBytes(client.get(url).body<ByteArray>())
+    private suspend fun downloadFile(url: String, fileName: String, modDirectory: String?): Boolean = try {
+        modDirectory ?: DuckyUpdaterReWork.rootModsDir
+
+        File(modDirectory, fileName).writeBytes(client.get(url).body<ByteArray>())
         true
     } catch (e: Exception) {
-        throw RuntimeException("Failed to download file: $fileName. ${e.message}")
+        DuckyUpdaterReWork.logger.warn("-----[ Permission Denied ]-----")
+        DuckyUpdaterReWork.logger.warn("Mod dir: $modDirectory")
+        DuckyUpdaterReWork.logger.warn("Mod file: $fileName")
+        DuckyUpdaterReWork.logger.warn("Path: ${File(modDirectory, fileName).absolutePath}")
+        DuckyUpdaterReWork.logger.warn("-------------------------------")
+
+        throw RuntimeException("Failed to download file: $fileName. ${e.stackTraceToString()}")
     }
 }

@@ -10,6 +10,7 @@ import dev.syoritohatsuki.duckyupdaterrework.core.util.toInt
 import net.fabricmc.loader.api.FabricLoader
 import org.intellij.lang.annotations.Language
 import java.sql.ResultSet
+import kotlin.io.path.absolutePathString
 import kotlin.jvm.optionals.getOrNull
 import kotlin.system.exitProcess
 
@@ -17,6 +18,7 @@ typealias ProjectId = String
 typealias DependencyId = String
 typealias ModId = String
 typealias Url = String
+typealias FilePath = String
 typealias Filename = String
 
 @Suppress("SqlSourceToSinkFlow", "SqlNoDataSourceInspection", "SqlResolve", "LoggingSimilarMessage")
@@ -80,6 +82,7 @@ object Database {
                                 fileHash TEXT, 
                                 version TEXT, 
                                 url TEXT,
+                                filePath TEXT,
                                 filename TEXT,
                                 ignore BOOLEAN DEFAULT FALSE,
                                 outdated BOOLEAN DEFAULT FALSE
@@ -113,6 +116,7 @@ object Database {
         fileHash: String? = null,
         version: String? = null,
         url: Url? = null,
+        filePath: FilePath? = null,
         fileName: Filename? = null,
         outdated: Boolean? = null,
     ) {
@@ -124,6 +128,7 @@ object Database {
             "fileHash" to fileHash,
             "version" to version,
             "url" to url,
+            "filePath" to filePath,
             "filename" to fileName,
             "outdated" to (outdated?.toInt()?.toString() ?: "NULL")
         ).filter { !it.value.isNullOrBlank() }
@@ -246,7 +251,7 @@ object Database {
     fun getDownloadingDataByProjectIds(projectIds: Set<ProjectId>) =
         mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
             query(
-                """SELECT projects.projectId,projects.filename, projects.url 
+                """SELECT projects.projectId, projects.filename, projects.url 
                         FROM projects 
                         WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")})
                         AND ignore = FALSE 
@@ -261,4 +266,19 @@ object Database {
                 )
             }
         }
+
+    fun getDirectoriesByProjectId(projectIds: Set<ProjectId>) = mutableMapOf<ProjectId, FilePath>().apply {
+        query(
+            """SELECT projects.projectId, projects.filePath 
+                FROM projects
+                WHERE projects.projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")})
+                LIMIT ${projectIds.size}
+             """.trimIndent()
+        ) {
+            while (it.next()) put(
+                it.getString("projectId"),
+                it.getString("filePath") ?: DuckyUpdaterReWork.rootModsDir.absolutePathString()
+            )
+        }
+    }
 }
