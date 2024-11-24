@@ -18,6 +18,7 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.command.CommandSource
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
@@ -131,7 +132,19 @@ object Downloader {
                 }
             } else {
                 context.source.sendMessage(Text.literal("Download completed").formatted(Formatting.GREEN))
+                context.source.sendMessage(
+                    Text.literal(
+                        "${
+                            ConfigManager.read().fileAction.name.lowercase().replaceFirstChar { it.uppercaseChar() }
+                        } will start after restart ${FabricLoader.getInstance().environmentType.name.lowercase()}"
+                    ).formatted(Formatting.RED)
+                )
                 DuckyUpdaterReWork.logger.info("${BRIGHT_GREEN}Download completed$RESET")
+                DuckyUpdaterReWork.logger.info(
+                    "${BRIGHT_RED}${
+                        ConfigManager.read().fileAction.name.lowercase().replaceFirstChar { it.uppercaseChar() }
+                    } will start after restart ${FabricLoader.getInstance().environmentType.name.lowercase()}$RESET"
+                )
             }
 
             state = State.IDLE
