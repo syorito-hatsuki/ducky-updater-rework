@@ -124,6 +124,17 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
 
     /*   Ignoring -_-   */
     literal("ignore") {
+        literal("list") {
+            executes {
+                try {
+                    TaskManager.listIgnoredMods(it)
+                } catch (e: TaskLockedException) {
+                    it.source.sendMessage(e.getMinecraftText())
+                    DuckyUpdaterReWork.logger.error(e.message)
+                }
+                0
+            }
+        }
         literal("by") {
             literal("mod-id") {
                 word("modId") {

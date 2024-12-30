@@ -33,6 +33,23 @@ object TaskManager {
     }
 
     @Throws(TaskLockedException::class)
+    fun listIgnoredMods(context: CommandContext<out CommandSource>) {
+        throwIfLocked("Fetching list of ignored projects")
+
+        context.source.sendMessage(Text.literal("Next projects are ignored"))
+        logger.info("Next projects are ignored")
+
+        Database.getListOfIgnoredProjects().onEach {
+            context.source.sendMessage(
+                Text.literal(" - ${it.key} ").append(Text.literal("(${it.value})").formatted(Formatting.DARK_GRAY))
+            )
+            logger.info(" - ${it.key} $GRAY(${it.value})$RESET")
+        }
+
+        unlock()
+    }
+
+    @Throws(TaskLockedException::class)
     suspend fun updateProjectsDB(context: CommandContext<out CommandSource>? = null) {
         throwIfLocked("Updating Projects in DB")
         context?.source?.sendMessageWithLog("Fetching updates from Modrinth...")

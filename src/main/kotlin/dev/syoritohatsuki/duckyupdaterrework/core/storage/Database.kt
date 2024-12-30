@@ -281,4 +281,15 @@ object Database {
             )
         }
     }
+
+    fun getListOfIgnoredProjects() = mutableMapOf<String, String>().apply {
+        query(
+            """SELECT projects.name, projects.modId
+                FROM projects 
+                WHERE projects.ignore = TRUE
+            """.trimIndent()
+        ) {
+            while (it.next()) put(it.getString("name"), it.getString("modId"))
+        }
+    }
 }
