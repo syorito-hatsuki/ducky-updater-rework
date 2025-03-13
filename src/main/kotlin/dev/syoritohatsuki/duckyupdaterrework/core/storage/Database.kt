@@ -23,9 +23,12 @@ typealias Filename = String
 
 @Suppress("SqlSourceToSinkFlow", "SqlNoDataSourceInspection", "SqlResolve", "LoggingSimilarMessage")
 object Database {
+
+    val DB_PATH: String = "${FabricLoader.getInstance().configDir.toAbsolutePath()}/durw/cache.db"
+
     private val dataSource: HikariDataSource by lazy {
         HikariDataSource(HikariConfig().apply {
-            jdbcUrl = "jdbc:sqlite:${FabricLoader.getInstance().configDir.toAbsolutePath()}/durw/cache.db"
+            jdbcUrl = "jdbc:sqlite:$DB_PATH"
             maximumPoolSize = 1
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
             maxLifetime = 60000

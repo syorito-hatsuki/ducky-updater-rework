@@ -107,6 +107,20 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
         }
     }
 
+    literal("clear-cache") {
+        executes {
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    TaskManager.clearCache(it)
+                }
+            } catch (e: TaskLockedException) {
+                it.source.sendMessage(e.getMinecraftText())
+                DuckyUpdaterReWork.logger.error(e.message)
+            }
+            0
+        }
+    }
+
     /*   Update checking :D  */
     literal("check") {
         executes {

@@ -8,10 +8,15 @@ import dev.syoritohatsuki.duckyupdaterrework.core.DuckyUpdaterApi
 import dev.syoritohatsuki.duckyupdaterrework.core.lang.TaskLockedException
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.server.message.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.minecraft.command.CommandSource
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
+import java.io.IOException
+import java.nio.file.Files
+import kotlin.io.path.Path
 
 // I didn't get a better idea to handle a process that works in diff threads...
 object TaskManager {
@@ -55,6 +60,21 @@ object TaskManager {
         context?.source?.sendMessageWithLog("Fetching updates from Modrinth...")
         DuckyUpdaterApi.checkForUpdates()
         context?.source?.sendMessageWithLog("Fetch success!")
+        unlock()
+    }
+
+    @Throws(TaskLockedException::class)
+    suspend fun clearCache(context: CommandContext<out CommandSource>? = null) {
+        throwIfLocked("Clearing cache")
+        context?.source?.sendMessageWithLog("Deleting cache...")
+        withContext(Dispatchers.IO) {
+            try {
+                Files.delete(Path(Database.DB_PATH))
+            } catch (e: IOException) {
+                logger.warn(e)
+            }
+        }
+        context?.source?.sendMessageWithLog("Cache deleted!")
         unlock()
     }
 
