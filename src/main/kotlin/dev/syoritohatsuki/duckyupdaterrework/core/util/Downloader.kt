@@ -25,6 +25,7 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import java.io.*
+import java.net.URLDecoder
 
 object Downloader {
     private val mutex = Mutex()
@@ -75,7 +76,7 @@ object Downloader {
             when (mode) {
                 SEQUENTIALLY -> mapOfUrlAndOldFile.forEach { (projectId, data) ->
                     val (url, oldFile) = data
-                    val filename = url.substringAfterLast('/')
+                    val filename = URLDecoder.decode(url.substringAfterLast('/'), Charsets.UTF_8)
                     try {
                         if (downloadFile(url, filename, directoriesByProjectId[projectId])) {
                             context.source.sendMessageWithLog("Downloaded: $filename")
@@ -94,7 +95,7 @@ object Downloader {
                 PARALLEL -> mapOfUrlAndOldFile.map { (projectId, data) ->
                     CoroutineScope(Dispatchers.IO).async {
                         val (url, oldFile) = data
-                        val filename = url.substringAfterLast('/')
+                        val filename = URLDecoder.decode(url.substringAfterLast('/'), Charsets.UTF_8)
                         try {
                             if (downloadFile(url, filename, directoriesByProjectId[projectId])) {
                                 context.source.sendMessageWithLog("Downloaded: $filename")
