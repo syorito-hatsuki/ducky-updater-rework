@@ -2,6 +2,7 @@ package dev.syoritohatsuki.duckyupdaterrework.core
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Hash
@@ -14,7 +15,7 @@ object DuckyUpdaterApi {
     private val modsHashes = Hash.getSha512Hashes()
 
     suspend fun checkForUpdates() {
-        ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList()).forEach { (hash, version) ->
+        ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList(), Loader.FABRIC).forEach { (hash, version) ->
 
             val file = version.files.firstOrNull() ?: return@forEach
 
@@ -63,7 +64,7 @@ object DuckyUpdaterApi {
 
                 dependency.projectId != null -> {
                     DuckyUpdaterReWork.logger.debug("2.3: {} | {}", projectId, dependency)
-                    ModrinthApi.getProjectVersions(dependency.projectId).ifEmpty {
+                    ModrinthApi.getProjectVersions(dependency.projectId, Loader.FABRIC).ifEmpty {
                         DuckyUpdaterReWork.logger.debug("2.3.1: {} | {}", projectId, dependency)
                         return@forEach
                     }[0].let {

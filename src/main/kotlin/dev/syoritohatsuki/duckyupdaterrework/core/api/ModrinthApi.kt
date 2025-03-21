@@ -3,6 +3,7 @@ package dev.syoritohatsuki.duckyupdaterrework.core.api
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.MOD_ID
 import dev.syoritohatsuki.duckyupdaterrework.core.api.body.LatestVersionByHash
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Project
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import io.ktor.client.*
@@ -35,19 +36,15 @@ object ModrinthApi {
         }
     }
 
-    suspend fun getLatestVersionFromHash(hash: String): Version = httpClient.post("version_file/${hash}/update") {
-        parameter("algorithm", "sha512")
-        setBody(LatestVersionByHash())
-    }.body()
-
-    suspend fun getLatestVersionsFromHashes(hashes: List<String>): Map<String, Version> =
+    suspend fun getLatestVersionsFromHashes(hashes: List<String>, loader: Loader): Map<String, Version> =
         httpClient.post("version_files/update") {
-            setBody(LatestVersionByHash(hashes))
+            setBody(LatestVersionByHash(hashes, loaders = listOf(loader.name.lowercase())))
         }.body() ?: emptyMap()
 
-    suspend fun getProjectVersions(projectId: String): List<Version> = httpClient.get("project/${projectId}/version") {
+    suspend fun getProjectVersions(projectId: String, loader: Loader): List<Version> =
+        httpClient.get("project/${projectId}/version") {
         parameter("game_versions", "[\"${SharedConstants.getGameVersion().name}\"]")
-        parameter("loaders", "[\"fabric\"]")
+            parameter("loaders", "[\"${loader.name.lowercase()}\"]")
         parameter("featured", false)
     }.body() ?: listOf()
 
