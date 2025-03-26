@@ -43,10 +43,10 @@ object ModrinthApi {
 
     suspend fun getProjectVersions(projectId: String, loader: Loader): List<Version> =
         httpClient.get("project/${projectId}/version") {
-        parameter("game_versions", "[\"${SharedConstants.getGameVersion().name}\"]")
+            parameter("game_versions", "[\"${SharedConstants.getGameVersion().name}\"]")
             parameter("loaders", "[\"${loader.name.lowercase()}\"]")
-        parameter("featured", false)
-    }.body() ?: listOf()
+            parameter("featured", false)
+        }.body() ?: listOf()
 
     suspend fun getMultiplyVersions(versions: Set<String>): List<Version> = httpClient.get("versions") {
         parameter("ids", versions.joinToString(prefix = "[\"", postfix = "\"]", separator = "\", \""))
