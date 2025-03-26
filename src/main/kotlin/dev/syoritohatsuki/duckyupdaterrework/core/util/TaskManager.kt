@@ -58,7 +58,7 @@ object TaskManager {
     suspend fun updateProjectsDB(context: CommandContext<out CommandSource>? = null) {
         throwIfLocked("Updating Projects in DB")
         context?.source?.sendMessageWithLog("Fetching updates from Modrinth...")
-        DuckyUpdaterApi.checkForUpdates()
+        DuckyUpdaterApi.checkMods()
         context?.source?.sendMessageWithLog("Fetch success!")
         unlock()
     }

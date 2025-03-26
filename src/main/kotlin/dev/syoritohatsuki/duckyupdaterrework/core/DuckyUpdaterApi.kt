@@ -14,7 +14,7 @@ object DuckyUpdaterApi {
 
     private val modsHashes = Hash.getSha512Hashes()
 
-    suspend fun checkForUpdates() {
+    suspend fun checkMods() {
         ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList(), Loader.FABRIC).forEach { (hash, version) ->
 
             val file = version.files.firstOrNull() ?: return@forEach
