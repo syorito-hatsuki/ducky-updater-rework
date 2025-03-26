@@ -136,19 +136,20 @@ object Database {
             "outdated" to (outdated?.toInt()?.toString() ?: "NULL")
         ).filter { !it.value.isNullOrBlank() }
 
-        update(StringBuilder().apply {
-            if (isProjectExist(projectId)) {
-                append("UPDATE projects SET ")
-                append(updateValues.entries.joinToString(",") { "'${it.key}' = '${it.value}'" })
-                append(" WHERE projectId = '$projectId'")
-            } else {
-                append("INSERT INTO projects (")
-                append(updateValues.keys.joinToString(","))
-                append(") VALUES (")
-                append(updateValues.values.joinToString(",") { "'$it'" })
-                append(")")
+        update(
+            when {
+                isProjectExist(projectId) -> """UPDATE projects 
+                            SET ${updateValues.entries.joinToString(",") { "'${it.key}' = '${it.value}'" }} 
+                            WHERE projectId = '$projectId'
+                        """.trimIndent()
+
+                else -> """INSERT INTO projects (
+                                ${updateValues.keys.joinToString(",")}) 
+                            VALUES (
+                                ${updateValues.values.joinToString(",") { "'$it'" }}
+                        )""".trimIndent()
             }
-        }.toString())
+        )
     }
 
     fun markProjectAsUpdated(projectId: ProjectId) {
@@ -183,10 +184,10 @@ object Database {
         val modsIds = ArrayListMultimap.create<ProjectId, DependencyId>()
         query(
             """SELECT p1.projectId AS project_id, COALESCE(p2.projectId, '') AS dependency_id 
-                    FROM projects AS p1 
-                    LEFT JOIN dependencies AS d ON p1.projectId = d.projectId 
-                    LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId
-                    WHERE p1.ignore = FALSE AND p1.outdated = TRUE
+                FROM projects AS p1 
+                LEFT JOIN dependencies AS d ON p1.projectId = d.projectId 
+                LEFT JOIN projects AS p2 ON d.dependencyProjectId = p2.projectId
+                WHERE p1.ignore = FALSE AND p1.outdated = TRUE
             """.trimMargin()
         ) {
             while (it.next()) modsIds.put(it.getString("project_id"), it.getString("dependency_id"))
@@ -199,9 +200,10 @@ object Database {
         val projectIds = projectIdsMultimap.keys().toSet() + projectIdsMultimap.values().toSet()
         query(
             """SELECT projectId, modId, name, changelog, url, version 
-                        FROM projects 
-                        WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")}) 
-                        LIMIT ${projectIds.size}"""
+                FROM projects 
+                WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")}) 
+                LIMIT ${projectIds.size}
+            """.trimIndent()
         ) {
             while (it.next()) additionalInfos[it.getString("projectId")] = AdditionalInfo(
                 name = it.getString("name") ?: "",
@@ -220,10 +222,10 @@ object Database {
     fun getAllDownloadingData() = mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
         query(
             """SELECT projects.projectId, projects.filename, projects.url 
-                        FROM projects
-                        WHERE ignore = FALSE
-                        AND outdated = TRUE
-                """
+                FROM projects
+                WHERE ignore = FALSE
+                AND outdated = TRUE
+                """.trimIndent()
         ) {
             while (it.next()) put(
                 it.getString("projectId"), Pair(
@@ -236,12 +238,12 @@ object Database {
     fun getDownloadingDataByModIds(modIds: Set<ModId>) = mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
         query(
             """SELECT projects.projectId, projects.filename, projects.url 
-                        FROM projects 
-                        WHERE modId IN(${modIds.joinToString(prefix = "'", postfix = "'", separator = "','")}) 
-                        AND ignore = FALSE 
-                        AND outdated = TRUE
-                        LIMIT ${modIds.size}
-                """
+                FROM projects 
+                WHERE modId IN(${modIds.joinToString(prefix = "'", postfix = "'", separator = "','")}) 
+                AND ignore = FALSE 
+                AND outdated = TRUE
+                LIMIT ${modIds.size}
+                """.trimIndent()
         ) {
             while (it.next()) put(
                 it.getString("projectId"), Pair(
@@ -255,12 +257,12 @@ object Database {
         mutableMapOf<ProjectId, Pair<Url, Filename>>().apply {
             query(
                 """SELECT projects.projectId, projects.filename, projects.url 
-                        FROM projects 
-                        WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")})
-                        AND ignore = FALSE 
-                        AND outdated = TRUE
+                    FROM projects 
+                    WHERE projectId IN(${projectIds.joinToString(prefix = "'", postfix = "'", separator = "','")})
+                    AND ignore = FALSE 
+                    AND outdated = TRUE
                         LIMIT ${projectIds.size}
-                """
+                """.trimIndent()
             ) {
                 while (it.next()) put(
                     it.getString("projectId"), Pair(
