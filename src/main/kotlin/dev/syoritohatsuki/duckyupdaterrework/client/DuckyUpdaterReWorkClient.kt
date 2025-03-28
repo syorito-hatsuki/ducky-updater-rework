@@ -1,6 +1,8 @@
 package dev.syoritohatsuki.duckyupdaterrework.client
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork.logger
+import dev.syoritohatsuki.duckyupdaterrework.core.DuckyUpdaterApi
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.command.commands
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.dsl.register
@@ -11,6 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
+import net.minecraft.client.MinecraftClient
+import net.minecraft.util.WorldSavePath
 
 object DuckyUpdaterReWorkClient : ClientModInitializer {
     override fun onInitializeClient() {
@@ -25,8 +30,15 @@ object DuckyUpdaterReWorkClient : ClientModInitializer {
             }
         }
 
+        ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { _, _, _ ->
+            DuckyUpdaterApi.defaultDatapacksDir =
+                MinecraftClient.getInstance().server?.getSavePath(WorldSavePath.DATAPACKS)?.toAbsolutePath()
+        })
+
         CoroutineScope(Dispatchers.IO).launch {
-            if (ConfigManager.read().checkUpdatesOnBoot) TaskManager.updateProjectsDB()
+            if (ConfigManager.read().checkUpdatesOnBoot) {
+                TaskManager.updateProjectsDB(loader = Loader.FABRIC)
+            }
         }
     }
 }

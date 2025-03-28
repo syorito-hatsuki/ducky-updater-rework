@@ -7,6 +7,9 @@ import net.fabricmc.loader.api.ModContainer
 import net.fabricmc.loader.api.metadata.ModOrigin
 import java.io.File
 import java.io.IOException
+import kotlin.io.path.Path
+import kotlin.io.path.isRegularFile
+import kotlin.io.path.listDirectoryEntries
 import kotlin.jvm.optionals.getOrNull
 
 object Hash {
@@ -16,6 +19,15 @@ object Hash {
                 if (file.isFile) hashFile(file)?.let {
                     this[it] = container
                 }
+            }
+        }
+    }
+
+    fun getSha512Hashes(searchPath: String): Map<String, File> = mutableMapOf<String, File>().apply {
+        Path(searchPath).listDirectoryEntries().forEach { path ->
+            val file = path.toFile()
+            if (path.isRegularFile()) hashFile(file)?.let {
+                this[it] = file
             }
         }
     }
