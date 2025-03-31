@@ -74,6 +74,56 @@ Mod that give possibility to update mods without using third-party launchers
 <details>
   <summary>Client</summary>
 
+| Command                                                   | OP | Permission | Description                                  |
+|-----------------------------------------------------------|----|------------|----------------------------------------------|
+| `/durw-client check`                                      | ❌  | `none`     | Check for updates                            |
+| `/durw-client clear-cache`                                | ❌  | `none`     | Clear database aka cache                     |
+| `/durw-client ignore by datapack-list`                    | ❌  | `none`     | List ignored datapacks                       |
+| `/durw-client ignore by fabric-list`                      | ❌  | `none`     | List ignored fabric mods                     |
+| `/durw-client ignore by mod-id <modId> <ignore>`          | ❌  | `none`     | Ignore mod updates by mod id                 |
+| `/durw-client ignore by fabric-id <projectId> <ignore>`   | ❌  | `none`     | Ignore mod updates by fabric id              |
+| `/durw-client ignore by datapack-id <projectId> <ignore>` | ❌  | `none`     | Ignore mod updates by datapack file name     |
+| `/durw-client update fabric-all`                          | ❌  | `none`     | Update all fabric mods                       |
+| `/durw-client update datapack-all`                        | ❌  | `none`     | Update all datapacks                         |
+| `/durw-client update by mod-ids <modIds>`                 | ❌  | `none`     | Update specific fabric mod(s) by mod ids     |
+| `/durw-client update by fabric-ids <projectIds>`          | ❌  | `none`     | Update specific fabric mod(s) by project ids |
+| `/durw-client update by datapack-ids <projectIds>`        | ❌  | `none`     | Update specific datapack(s) by project ids   |
+| `/durw-client config download-mode <mode>`                | ❌  | `none`     | Setup [downloading mod](#config)             |
+| `/durw-client config file-action <action>`                | ❌  | `none`     | Setup [file action](#config)                 |
+| `/durw-client config check-update-on-boot <check>`        | ❌  | `none`     | Setup [update checking on boot](#config)     |
+
+</details>
+
+<details>
+  <summary>Server</summary>
+
+| Command                                                   | OP | Permission | Description                                  |
+|-----------------------------------------------------------|----|------------|----------------------------------------------|
+| `/durw-server check`                                      | ✅  | `none`     | Check for updates                            |
+| `/durw-server clear-cache`                                | ✅  | `none`     | Clear database aka cache                     |
+| `/durw-server ignore by datapack-list`                    | ✅  | `none`     | List ignored datapacks                       |
+| `/durw-server ignore by fabric-list`                      | ✅  | `none`     | List ignored fabric mods                     |
+| `/durw-server ignore by mod-id <modId> <ignore>`          | ✅  | `none`     | Ignore mod updates by mod id                 |
+| `/durw-server ignore by fabric-id <projectId> <ignore>`   | ✅  | `none`     | Ignore mod updates by fabric id              |
+| `/durw-server ignore by datapack-id <projectId> <ignore>` | ✅  | `none`     | Ignore mod updates by datapack file name     |
+| `/durw-server update fabric-all`                          | ✅  | `none`     | Update all fabric mods                       |
+| `/durw-server update datapack-all`                        | ✅  | `none`     | Update all datapacks                         |
+| `/durw-server update by mod-ids <modIds>`                 | ✅  | `none`     | Update specific fabric mod(s) by mod ids     |
+| `/durw-server update by fabric-ids <projectIds>`          | ✅  | `none`     | Update specific fabric mod(s) by project ids |
+| `/durw-server update by datapack-ids <projectIds>`        | ✅  | `none`     | Update specific datapack(s) by project ids   |
+| `/durw-server config download-mode <mode>`                | ✅  | `none`     | Setup [downloading mod](#config)             |
+| `/durw-server config file-action <action>`                | ✅  | `none`     | Setup [file action](#config)                 |
+| `/durw-server config check-update-on-boot <check>`        | ✅  | `none`     | Setup [update checking on boot](#config)     |
+
+</details>
+
+<details>
+<summary>Before 2025.4.1</summary>
+
+
+<details>
+  <summary>Client</summary>
+
 | Command                                                  | OP | Permission | Description                              |
 |----------------------------------------------------------|----|------------|------------------------------------------|
 | `/durw-client check`                                     | ❌  | `none`     | Check for updates                        |
@@ -102,6 +152,8 @@ Mod that give possibility to update mods without using third-party launchers
 | `/durw-server config download-mode <mode>`               | ✅  | `none`     | Setup [downloading mod](#config)         |
 | `/durw-server config file-action <action>`               | ✅  | `none`     | Setup [file action](#config)             |
 | `/durw-server config check-update-on-boot <check>`       | ✅  | `none`     | Setup [update checking on boot](#config) |
+
+</details>
 
 </details>
 
