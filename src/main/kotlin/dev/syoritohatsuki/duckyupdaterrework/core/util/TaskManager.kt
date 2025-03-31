@@ -83,7 +83,7 @@ object TaskManager {
         var updatesCount: Int
 
         buildModsTree(modsIds, additionalInfos).onEach { printer ->
-            context.source.sendMessage(updateAvailable(context.source, printer, additionalInfos))
+            context.source.sendMessage(updateAvailable(context.source, printer, additionalInfos, loader))
             if (context.source is ServerCommandSource) logger.updateAvailable(printer)
         }.also {
             updatesCount = it.map { printer -> printer.projectId }.toHashSet().size
