@@ -140,6 +140,13 @@ object TaskManager {
         }
 
         if (result == -2) {
+            context.source.sendMessage(Text.literal("Project not exist").formatted(Formatting.GRAY))
+            logger.info("${BRIGHT_GRAY}Project not exist$RESET")
+            unlock()
+            return
+        }
+
+        if (result == -3) {
             context.source.sendMessage(Text.literal("Project already marked by $status").formatted(Formatting.GRAY))
             logger.info("${BRIGHT_GRAY}Project already marked by $status$RESET")
             unlock()
@@ -182,6 +189,13 @@ object TaskManager {
         }
 
         if (result == -2) {
+            context.source.sendMessage(Text.literal("Mod not exist").formatted(Formatting.GRAY))
+            logger.info("${BRIGHT_GRAY}Mod not exist$RESET")
+            unlock()
+            return
+        }
+
+        if (result == -3) {
             context.source.sendMessage(Text.literal("$modId already marked by $status").formatted(Formatting.GRAY))
             logger.info("${BRIGHT_GRAY}$modId already marked by $status$RESET")
             unlock()

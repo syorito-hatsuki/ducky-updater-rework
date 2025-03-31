@@ -215,26 +215,31 @@ object Database {
 
     fun setIgnore(modId: String? = null, projectId: String? = null, status: Boolean, loader: Loader): Int {
         var current = false
+        var notExist = false
 
         return when (loader) {
             Loader.FABRIC -> when {
                 projectId != null -> {
-                    query("SELECT ignore FROM projects WHERE projectId IS '$projectId'") {
+                    query("SELECT ignore FROM projects WHERE projectId IS '$projectId' LIMIT 1") {
                         while (it.next()) current = it.getBoolean("ignore")
+                        if (it.row <= 0) notExist = true
                     }
 
-                    if (current == status) return -2
+                    if (notExist) return -2
+                    if (current == status) return -3
 
                     update("UPDATE projects SET ignore = '${status.toInt()}' WHERE projectId IS '$projectId'")
                 }
 
                 modId != null -> {
 
-                    query("SELECT ignore FROM projects WHERE modId IS '$modId'") {
+                    query("SELECT ignore FROM projects WHERE modId IS '$modId' LIMIT 1") {
                         while (it.next()) current = it.getBoolean("ignore")
+                        if (it.row <= 0) notExist = true
                     }
 
-                    if (current == status) return -2
+                    if (notExist) return -2
+                    if (current == status) return -3
 
                     update("UPDATE projects SET ignore = '${status.toInt()}' WHERE modId IS '$modId'")
                 }
@@ -243,11 +248,13 @@ object Database {
             }
 
             Loader.DATAPACK -> {
-                query("SELECT ignore FROM datapacks WHERE projectId IS '$projectId'") {
+                query("SELECT ignore FROM datapacks WHERE projectId IS '$projectId' LIMIT 1") {
                     while (it.next()) current = it.getBoolean("ignore")
+                    if (it.row <= 0) notExist = true
                 }
 
-                if (current == status) return -2
+                if (notExist) return -2
+                if (current == status) return -3
 
                 when {
                     projectId != null -> update("UPDATE datapacks SET ignore = '${status.toInt()}' WHERE projectId IS '$projectId'")
