@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.core.api.body
 
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.minecraft.SharedConstants
@@ -8,7 +9,7 @@ import net.minecraft.SharedConstants
 data class LatestVersionByHash(
     val hashes: List<String> = listOf(),
     val algorithm: String = "sha512",
-    val loaders: List<String> = listOf("fabric"),
+    val loaders: List<String> = listOf(Loader.FABRIC.name.lowercase()),
     @SerialName("game_versions")
     val gameVersion: List<String> = listOf(SharedConstants.getGameVersion().name)
 )

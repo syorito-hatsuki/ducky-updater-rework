@@ -2,19 +2,22 @@ package dev.syoritohatsuki.duckyupdaterrework.core
 
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
 import dev.syoritohatsuki.duckyupdaterrework.core.api.ModrinthApi
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Version
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.util.Hash
 import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
 
 object DuckyUpdaterApi {
 
     private val modsHashes = Hash.getSha512Hashes()
+    var defaultDatapacksDir: Path? = null
 
-    suspend fun checkForUpdates() {
-        ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList()).forEach { (hash, version) ->
+    suspend fun checkMods() {
+        ModrinthApi.getLatestVersionsFromHashes(modsHashes.keys.toList(), Loader.FABRIC).forEach { (hash, version) ->
 
             val file = version.files.firstOrNull() ?: return@forEach
 
@@ -36,7 +39,8 @@ object DuckyUpdaterApi {
                 filePath = modsHashes[hash]?.origin?.paths?.get(0)?.toAbsolutePath()?.absolutePathString()
                     ?.substringBeforeLast(File.separator),
                 fileName = modsHashes[hash]?.origin?.paths?.get(0)?.name,
-                outdated = true
+                outdated = true,
+                loader = Loader.FABRIC
             )
 
             version.dependencies.checkForDependency(version.projectId)
@@ -44,6 +48,35 @@ object DuckyUpdaterApi {
         }
 
         fixNullModNames()
+    }
+
+    suspend fun checkDatapacks() {
+        val datapackHashes = Hash.getSha512Hashes(defaultDatapacksDir?.absolutePathString() ?: return)
+        ModrinthApi.getLatestVersionsFromHashes(datapackHashes.keys.toList(), Loader.DATAPACK)
+            .forEach { (hash, version) ->
+
+                val file = version.files.firstOrNull() ?: return@forEach
+
+                if (file.hashes.sha512 == hash) {
+                    DuckyUpdaterReWork.logger.debug("1.1: ${version.projectId} ${(datapackHashes[hash]?.name ?: version.name).escaping()} | ${file.url}")
+                    return@forEach
+                }
+
+                DuckyUpdaterReWork.logger.debug("1.2: ${version.projectId} ${(datapackHashes[hash]?.name ?: version.name).escaping()} | ${file.url}")
+
+                Database.insertOrUpdateProject(
+                    projectId = version.projectId,
+                    name = (datapackHashes[hash]?.name?.substringBeforeLast(".") ?: version.name).escaping(),
+                    changelog = version.changelog.escaping(),
+                    fileHash = hash,
+                    version = version.versionNumber,
+                    url = file.url,
+                    filePath = datapackHashes[hash]?.absolutePath?.substringBeforeLast(File.separator),
+                    fileName = datapackHashes[hash]?.name,
+                    outdated = true,
+                    loader = Loader.DATAPACK
+                )
+            }
     }
 
     private suspend fun List<Version.Dependency>.checkForDependency(projectId: String) {
@@ -63,7 +96,7 @@ object DuckyUpdaterApi {
 
                 dependency.projectId != null -> {
                     DuckyUpdaterReWork.logger.debug("2.3: {} | {}", projectId, dependency)
-                    ModrinthApi.getProjectVersions(dependency.projectId).ifEmpty {
+                    ModrinthApi.getProjectVersions(dependency.projectId, Loader.FABRIC).ifEmpty {
                         DuckyUpdaterReWork.logger.debug("2.3.1: {} | {}", projectId, dependency)
                         return@forEach
                     }[0].let {
@@ -78,7 +111,8 @@ object DuckyUpdaterApi {
                             changelog = it.changelog.escaping(),
                             version = it.versionNumber,
                             url = it.files[0].url,
-                            outdated = true
+                            outdated = true,
+                            loader = Loader.FABRIC
                         )
 
                         Database.update(

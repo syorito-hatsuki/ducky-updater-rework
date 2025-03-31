@@ -2,6 +2,7 @@ package dev.syoritohatsuki.duckyupdaterrework.core.util
 
 import com.mojang.brigadier.context.CommandContext
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Filename
@@ -57,6 +58,7 @@ object Downloader {
     fun download(
         context: CommandContext<out CommandSource>,
         mapOfUrlAndOldFile: Map<ProjectId, Pair<Url, Filename>>,
+        loader: Loader
     ) {
         throwIfLocked()
 
@@ -71,7 +73,7 @@ object Downloader {
 
             context.source.sendMessage(Text.literal("Download starting...").formatted(Formatting.GREEN))
             DuckyUpdaterReWork.logger.info("${BRIGHT_GREEN}Download starting...$RESET")
-            val directoriesByProjectId = Database.getDirectoriesByProjectId(mapOfUrlAndOldFile.keys)
+            val directoriesByProjectId = Database.getDirectoriesByProjectId(mapOfUrlAndOldFile.keys, loader)
 
             when (mode) {
                 SEQUENTIALLY -> mapOfUrlAndOldFile.forEach { (projectId, data) ->
@@ -80,7 +82,7 @@ object Downloader {
                     try {
                         if (downloadFile(url, filename, directoriesByProjectId[projectId])) {
                             context.source.sendMessageWithLog("Downloaded: $filename")
-                            Database.markProjectAsUpdated(projectId)
+                            Database.markProjectAsUpdated(projectId, loader)
                             if (filename == oldFile) return@forEach
                             FileActions.prepareAction(oldFile, directoriesByProjectId[projectId])
                         } else {
@@ -99,7 +101,7 @@ object Downloader {
                         try {
                             if (downloadFile(url, filename, directoriesByProjectId[projectId])) {
                                 context.source.sendMessageWithLog("Downloaded: $filename")
-                                Database.markProjectAsUpdated(projectId)
+                                Database.markProjectAsUpdated(projectId, loader)
                                 if (filename == oldFile) return@async
                                 mutex.withLock {
                                     FileActions.prepareAction(oldFile, directoriesByProjectId[projectId])

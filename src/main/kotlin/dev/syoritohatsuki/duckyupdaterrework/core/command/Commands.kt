@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import dev.syoritohatsuki.duckyupdaterrework.DuckyUpdaterReWork
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
 import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager.write
 import dev.syoritohatsuki.duckyupdaterrework.core.dsl.bool
@@ -31,7 +32,7 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
     /*   Config commands :)   */
     literal("config") {
         literal("download-mode") {
-            Downloader.Mode.values().forEach { mode ->
+            Downloader.Mode.entries.forEach { mode ->
                 literal(mode.name) {
                     executes {
                         ConfigManager.read().copy(downloadMode = mode).write()
@@ -57,7 +58,7 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
             }
         }
         literal("file-action") {
-            FileActions.FileAction.values().forEach { action ->
+            FileActions.FileAction.entries.forEach { action ->
                 literal(action.name) {
                     executes {
                         ConfigManager.read().copy(fileAction = action).write()
@@ -123,67 +124,74 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
 
     /*   Update checking :D  */
     literal("check") {
-        executes {
-            try {
-                CoroutineScope(Dispatchers.IO).launch {
-                    TaskManager.getAvailableUpdatesFromDB(it)
+        Loader.entries.forEach { loader ->
+            literal(loader.name.lowercase()) {
+                executes {
+                    try {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            TaskManager.getAvailableUpdatesFromDB(it, loader)
+                        }
+                    } catch (e: TaskLockedException) {
+                        it.source.sendMessage(e.getMinecraftText())
+                        DuckyUpdaterReWork.logger.error(e.message)
+                    }
+                    0
                 }
-            } catch (e: TaskLockedException) {
-                it.source.sendMessage(e.getMinecraftText())
-                DuckyUpdaterReWork.logger.error(e.message)
             }
-            0
         }
     }
 
     /*   Ignoring -_-   */
     literal("ignore") {
-        literal("list") {
-            executes {
-                try {
-                    TaskManager.listIgnoredMods(it)
-                } catch (e: TaskLockedException) {
-                    it.source.sendMessage(e.getMinecraftText())
-                    DuckyUpdaterReWork.logger.error(e.message)
+        Loader.entries.forEach { loader ->
+            literal("${loader.name.lowercase()}-list") {
+                executes {
+                    try {
+                        TaskManager.listIgnoredMods(it, loader)
+                    } catch (e: TaskLockedException) {
+                        it.source.sendMessage(e.getMinecraftText())
+                        DuckyUpdaterReWork.logger.error(e.message)
+                    }
+                    0
                 }
-                0
             }
-        }
-        literal("by") {
-            literal("mod-id") {
-                word("modId") {
-                    bool("ignore") {
-                        executes {
-                            try {
-                                TaskManager.addToIgnoreByModId(
-                                    it,
-                                    StringArgumentType.getString(it, "modId"),
-                                    BoolArgumentType.getBool(it, "ignore")
-                                )
-                            } catch (e: TaskLockedException) {
-                                it.source.sendMessage(e.getMinecraftText())
-                                DuckyUpdaterReWork.logger.error(e.message)
+            literal("by") {
+                literal("mod-id") {
+                    word("modId") {
+                        bool("ignore") {
+                            executes {
+                                try {
+                                    TaskManager.addToIgnoreByModId(
+                                        it,
+                                        StringArgumentType.getString(it, "modId"),
+                                        BoolArgumentType.getBool(it, "ignore")
+                                    )
+                                } catch (e: TaskLockedException) {
+                                    it.source.sendMessage(e.getMinecraftText())
+                                    DuckyUpdaterReWork.logger.error(e.message)
+                                }
+                                0
                             }
-                            0
                         }
                     }
                 }
-            }
-            literal("project-id") {
-                word("projectId") {
-                    bool("ignore") {
-                        executes {
-                            try {
-                                TaskManager.addToIgnoreByProjectId(
-                                    it,
-                                    StringArgumentType.getString(it, "projectId"),
-                                    BoolArgumentType.getBool(it, "ignore")
-                                )
-                            } catch (e: TaskLockedException) {
-                                it.source.sendMessage(e.getMinecraftText())
-                                DuckyUpdaterReWork.logger.error(e.message)
+                literal("${loader.name.lowercase()}-id") {
+                    word("projectId") {
+                        bool("ignore") {
+                            executes {
+                                try {
+                                    TaskManager.addToIgnoreByProjectId(
+                                        it,
+                                        StringArgumentType.getString(it, "projectId"),
+                                        BoolArgumentType.getBool(it, "ignore"),
+                                        loader
+                                    )
+                                } catch (e: TaskLockedException) {
+                                    it.source.sendMessage(e.getMinecraftText())
+                                    DuckyUpdaterReWork.logger.error(e.message)
+                                }
+                                0
                             }
-                            0
                         }
                     }
                 }
@@ -209,31 +217,37 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                     }
                 }
             }
-            literal("project-ids") {
-                greedyString("projectIds") {
-                    executes {
-                        try {
-                            TaskManager.updateSpecificModsByProjectIds(
-                                it, *StringArgumentType.getString(it, "projectIds").split(" ").toTypedArray()
-                            )
-                        } catch (e: TaskLockedException) {
-                            it.source.sendMessage(e.getMinecraftText())
-                            DuckyUpdaterReWork.logger.error(e.message)
+            Loader.entries.forEach { loader ->
+                literal("${loader.name.lowercase()}-ids") {
+                    greedyString("projectIds") {
+                        executes {
+                            try {
+                                TaskManager.updateSpecificModsByProjectIds(
+                                    it,
+                                    loader,
+                                    *StringArgumentType.getString(it, "projectIds").split(" ").toTypedArray()
+                                )
+                            } catch (e: TaskLockedException) {
+                                it.source.sendMessage(e.getMinecraftText())
+                                DuckyUpdaterReWork.logger.error(e.message)
+                            }
+                            0
                         }
-                        0
                     }
                 }
             }
         }
-        literal("all") {
-            executes {
-                try {
-                    TaskManager.updateAllMods(it)
-                } catch (e: TaskLockedException) {
-                    it.source.sendMessage(e.getMinecraftText())
-                    DuckyUpdaterReWork.logger.error(e.message)
+        Loader.entries.forEach { loader ->
+            literal("${loader.name.lowercase()}-all") {
+                executes {
+                    try {
+                        TaskManager.updateAllMods(it, loader)
+                    } catch (e: TaskLockedException) {
+                        it.source.sendMessage(e.getMinecraftText())
+                        DuckyUpdaterReWork.logger.error(e.message)
+                    }
+                    0
                 }
-                0
             }
         }
     }

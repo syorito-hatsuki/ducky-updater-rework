@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.duckyupdaterrework.client.message
 
+import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.ProjectId
@@ -12,7 +13,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 
 fun updateAvailable(
-    source: CommandSource, printer: Printer, additionalInfos: MutableMap<ProjectId, AdditionalInfo>
+    source: CommandSource, printer: Printer, additionalInfos: MutableMap<ProjectId, AdditionalInfo>, loader: Loader
 ): Text = Text.empty().apply {
     append(Text.literal(printer.prefix))
     append(Text.literal(" [").formatted(Formatting.DARK_GRAY))
@@ -28,8 +29,8 @@ fun updateAvailable(
         style.withClickEvent(
             ClickEvent(
                 ClickEvent.Action.SUGGEST_COMMAND, when (source) {
-                    is ServerCommandSource -> "/durw-server update by project-ids ${printer.projectId}"
-                    is ClientCommandSource -> "/durw-client update by project-ids ${printer.projectId}"
+                    is ServerCommandSource -> "/durw-server update by ${loader.name.lowercase()}-ids ${printer.projectId}"
+                    is ClientCommandSource -> "/durw-client update by ${loader.name.lowercase()}-ids ${printer.projectId}"
                     else -> return@styled style
                 }
             )
