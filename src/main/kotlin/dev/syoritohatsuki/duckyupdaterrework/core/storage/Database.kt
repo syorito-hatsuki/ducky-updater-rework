@@ -520,5 +520,49 @@ object Database {
         update("DROP TABLE IF EXISTS dependencies")
         update("DROP TABLE IF EXISTS projects")
         update("DROP TABLE IF EXISTS datapacks")
+        update(
+            """
+                CREATE TABLE IF NOT EXISTS projects (
+                    projectId TEXT PRIMARY KEY, 
+                    modId TEXT, 
+                    name TEXT,
+                    changelog TEXT,
+                    fileHash TEXT, 
+                    version TEXT, 
+                    url TEXT,
+                    filePath TEXT,
+                    filename TEXT,
+                    ignore BOOLEAN DEFAULT FALSE,
+                    outdated BOOLEAN DEFAULT FALSE
+                )
+            """.trimIndent()
+        )
+        update(
+            """
+                CREATE TABLE IF NOT EXISTS dependencies (
+                    projectId TEXT, 
+                    dependencyProjectId TEXT, 
+                    PRIMARY KEY (projectId, dependencyProjectId),
+                    FOREIGN KEY (projectId) REFERENCES projects(projectId) ON DELETE CASCADE, 
+                    FOREIGN KEY (dependencyProjectId) REFERENCES projects(projectId) ON DELETE CASCADE
+                )
+            """.trimMargin()
+        )
+        update(
+            """
+                CREATE TABLE IF NOT EXISTS datapacks (
+                    projectId TEXT PRIMARY KEY, 
+                    name TEXT,
+                    changelog TEXT,
+                    fileHash TEXT, 
+                    version TEXT, 
+                    url TEXT,
+                    filePath TEXT,
+                    filename TEXT,
+                    ignore BOOLEAN DEFAULT FALSE,
+                    outdated BOOLEAN DEFAULT FALSE
+                )
+            """.trimIndent()
+        )
     }
 }
