@@ -22,8 +22,7 @@ fun updatesCount(updatesCount: Int, loader: Loader): Text = Text.empty().apply {
                         ?.filter { it.isRegularFile() }?.size?.toString() ?: "?"
                 ).styled {
                     it.withItalic(true).withHoverEvent(
-                        HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT,
+                        HoverEvent.ShowText(
                             Text.literal("Just count files in directory (even if not datapack file)")
                         )
                     )

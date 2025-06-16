@@ -8,7 +8,8 @@ import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Filename
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.ProjectId
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.Url
-import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader.Mode.*
+import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader.Mode.PARALLEL
+import dev.syoritohatsuki.duckyupdaterrework.core.util.Downloader.Mode.SEQUENTIALLY
 import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_GREEN
 import dev.syoritohatsuki.duckyupdaterrework.server.message.BRIGHT_RED
 import dev.syoritohatsuki.duckyupdaterrework.server.message.RESET
@@ -25,7 +26,8 @@ import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
-import java.io.*
+import java.io.File
+import java.net.URI
 import java.net.URLDecoder
 
 object Downloader {
@@ -123,8 +125,8 @@ object Downloader {
                     *failed.map {
                         Text.literal("- ${it.filename}").styled { style ->
                             style.withColor(Formatting.RED)
-                                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(it.reason)))
-                                .withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, it.url))
+                                .withHoverEvent(HoverEvent.ShowText(Text.literal(it.reason)))
+                                .withClickEvent(ClickEvent.OpenUrl(URI.create(it.url)))
                         }
                     }.toTypedArray()
                 )

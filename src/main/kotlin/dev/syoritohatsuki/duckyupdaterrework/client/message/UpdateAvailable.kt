@@ -27,16 +27,16 @@ fun updateAvailable(
     append(Text.literal("]").formatted(Formatting.DARK_GRAY))
     styled { style ->
         style.withClickEvent(
-            ClickEvent(
-                ClickEvent.Action.SUGGEST_COMMAND, when (source) {
+            ClickEvent.SuggestCommand(
+                when (source) {
                     is ServerCommandSource -> "/durw-server update by ${loader.name.lowercase()}-ids ${printer.projectId}"
                     is ClientCommandSource -> "/durw-client update by ${loader.name.lowercase()}-ids ${printer.projectId}"
                     else -> return@styled style
                 }
             )
         ).withHoverEvent(
-            HoverEvent(
-                HoverEvent.Action.SHOW_TEXT, Text.literal(
+            HoverEvent.ShowText(
+                Text.literal(
                     additionalInfos[printer.projectId]?.changeLog ?: return@styled style
                 )
             )
