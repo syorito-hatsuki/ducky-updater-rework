@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val javaVersion = JavaVersion.VERSION_17
+val javaVersion = JavaVersion.VERSION_21
 val loaderVersion: String by project
 val minecraftVersion: String by project
 val modVersion: String by project
@@ -35,8 +35,8 @@ dependencies {
 
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
 
-    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2023.6.1"))
-    include(modImplementation("maven.modrinth", "fstats", "2023.12.3"))
+    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2025.4.1"))
+    include(modImplementation("maven.modrinth", "fstats", "72p6jc6r"))
 
     val ktorVersion: String by project
     include(implementation("io.ktor", "ktor-client-cio-jvm", ktorVersion))
