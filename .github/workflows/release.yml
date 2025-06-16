@@ -1,0 +1,89 @@
+name: Release Mod
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - "1.20"
+      - "1.21.5"
+    paths:
+      - 'build.gradle.kts'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    environment: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract versions from Gradle
+        id: get_version
+        run: |
+          MOD_VERSION=$(grep -oP 'modVersion\s*=\s*\K.+' gradle.properties)
+          MC_VERSION=$(grep -oP 'minecraftVersion\s*=\s*\K.+' gradle.properties)
+          echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
+          echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
+          echo "MC_VERSION=$MC_VERSION" >> $GITHUB_ENV
+          echo "minecraft_version=$MC_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build & Publish to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: ./gradlew build
+
+      - name: Read Modrinth URL
+        id: get_modrinth_url
+        run: |
+          URL=$(cat build/modrinth_url.txt)
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.mod_version }}
+          name: ${{ steps.get_version.outputs.mod_version }}
+          body_path: CHANGELOG.md
+          files: |
+            build/libs/*${{ steps.get_version.outputs.mod_version }}*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Discord
+        run: |
+          CHANGELOG=$(cat CHANGELOG.md)
+          MESSAGE="# ${{ steps.get_version.outputs.mod_version }}"$'\n'"\
+          $CHANGELOG
+          ## Version: ${{ steps.get_version.outputs.minecraft_version }}"$'\n'"\
+          <:modrinth:1373792332469768213> ${{ steps.get_modrinth_url.outputs.url }}"$'\n'"\
+          <:github:1373792356024979617> ${{ steps.create_release.outputs.url }}"
+          
+          jq -n --arg content "$MESSAGE" '{content: $content}' > payload.json
+          
+          curl -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X POST \
+               -d @payload.json \
+               "https://discord.com/api/v10/channels/${{ secrets.DISCORD_CHANNEL_ID }}/messages"
