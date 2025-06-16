@@ -51,7 +51,7 @@ jobs:
       - name: Build & Publish to Modrinth
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: ./gradlew build
+        run: ./gradlew modrinth
 
       - name: Read Modrinth URL
         id: get_modrinth_url
