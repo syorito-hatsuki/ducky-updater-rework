@@ -1,3 +1,4 @@
+import com.modrinth.minotaur.TaskModrinthUpload
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val javaVersion = JavaVersion.VERSION_21
@@ -12,6 +13,7 @@ plugins {
     id("fabric-loom")
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("com.modrinth.minotaur")
 }
 
 base {
@@ -59,7 +61,36 @@ dependencies {
     include(implementation("net.lingala.zip4j", "zip4j", "2.11.5"))
 }
 
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("ducky-updater-rework")
+    versionName.set("Ducky Updater: ReWork $modVersion")
+    versionNumber.set(modVersion)
+    versionType.set("release")
+    uploadFile.set(tasks.remapJar)
+    additionalFiles.add(tasks.remapSourcesJar)
+    gameVersions.addAll("1.21.5")
+    loaders.add("fabric")
+    changelog.set(rootProject.file("CHANGELOG.md").readText())
+    dependencies {
+        required.project("fabric-api", "fabric-language-kotlin")
+        embedded.project("fstats", "modmenu-badges-lib")
+    }
+}
+
 tasks {
+
+    named("modrinth").configure {
+        @Suppress("UnstableApiUsage") doLast {
+            (this@configure as TaskModrinthUpload).uploadInfo?.let {
+                "https://modrinth.com/mod/ducky-updater-rework/version/${it.id}".apply {
+                    println(this)
+                    rootProject.file("build/modrinth_url.txt").writeText(this)
+                }
+            } ?: return@doLast
+        }
+    }
+
     withType<JavaCompile> {
         options.encoding = "UTF-8"
         sourceCompatibility = javaVersion.toString()

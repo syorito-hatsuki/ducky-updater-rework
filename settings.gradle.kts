@@ -12,5 +12,7 @@ pluginManagement {
         val kotlinVersion: String by System.getProperties()
         kotlin("jvm") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
+
+        id("com.modrinth.minotaur") version "2.+"
     }
 }
