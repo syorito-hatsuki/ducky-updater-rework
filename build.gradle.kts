@@ -53,8 +53,8 @@ dependencies {
     include(implementation("io.ktor", "ktor-serialization-kotlinx-jvm", ktorVersion))
     include(implementation("io.ktor", "ktor-utils-jvm", ktorVersion))
 
-    include(implementation("org.xerial", "sqlite-jdbc", "3.44.1.0"))
-    include(implementation("com.zaxxer", "HikariCP", "5.1.0"))
+    include(implementation("org.xerial", "sqlite-jdbc", "3.50.1.0"))
+    include(implementation("com.zaxxer", "HikariCP", "6.3.0"))
 
     include(implementation("net.lingala.zip4j", "zip4j", "2.11.5"))
 }
