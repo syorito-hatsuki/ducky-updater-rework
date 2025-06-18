@@ -69,7 +69,7 @@ modrinth {
     versionType.set("release")
     uploadFile.set(tasks.remapJar)
     additionalFiles.add(tasks.remapSourcesJar)
-    gameVersions.addAll("1.21.5")
+    gameVersions.addAll("1.21.6")
     loaders.add("fabric")
     changelog.set(rootProject.file("CHANGELOG.md").readText())
     dependencies {
