@@ -45,11 +45,11 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=${loaderVersion}",
+    "fabricloader": "*",
     "fabric": "*",
     "fabric-language-kotlin": "*",
-    "minecraft": ">=1.20",
-    "java": ">=${javaVersion}"
+    "minecraft": ">=1.21.6",
+    "java": "*"
   },
   "recommends": {
     "modmenu-badges-lib": "*",
