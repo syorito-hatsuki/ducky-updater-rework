@@ -37,8 +37,8 @@ dependencies {
 
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
 
-    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2025.6.1"))
-    include(modImplementation("maven.modrinth", "fstats", "2025.6.1"))
+    include(modImplementation("maven.modrinth", "modmenu-badges-lib", "2026.2.1"))
+    include(modImplementation("maven.modrinth", "fstats", "QNO1tRop"))
 
     val ktorVersion: String by project
     include(implementation("io.ktor", "ktor-client-cio-jvm", ktorVersion))
@@ -55,8 +55,8 @@ dependencies {
     include(implementation("io.ktor", "ktor-serialization-kotlinx-jvm", ktorVersion))
     include(implementation("io.ktor", "ktor-utils-jvm", ktorVersion))
 
-    include(implementation("org.xerial", "sqlite-jdbc", "3.50.1.0"))
-    include(implementation("com.zaxxer", "HikariCP", "6.3.0"))
+    include(implementation("org.xerial", "sqlite-jdbc", "3.51.1.0"))
+    include(implementation("com.zaxxer", "HikariCP", "7.0.2"))
 
     include(implementation("net.lingala.zip4j", "zip4j", "2.11.5"))
 }
@@ -69,7 +69,7 @@ modrinth {
     versionType.set("release")
     uploadFile.set(tasks.remapJar)
     additionalFiles.add(tasks.remapSourcesJar)
-    gameVersions.addAll("1.21.6")
+    gameVersions.addAll("1.21.11")
     loaders.add("fabric")
     changelog.set(rootProject.file("CHANGELOG.md").readText())
     dependencies {

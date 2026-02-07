@@ -9,18 +9,22 @@ import dev.syoritohatsuki.duckyupdaterrework.core.dsl.rootLiteral
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.minecraft.command.DefaultPermissions
+import net.minecraft.command.permission.PermissionCheck
+import net.minecraft.server.command.CommandManager
 import net.minecraft.util.WorldSavePath
 
 object DuckyUpdaterReWorkServer : DedicatedServerModInitializer {
+    val PERMISSION_CHECK = PermissionCheck.Require(DefaultPermissions.GAMEMASTERS)
+
     override fun onInitializeServer() {
         logger.info("Loading server-side DURW")
 
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
             dispatcher.register {
                 rootLiteral("durw-server") {
-                    requires {
-                        it.hasPermissionLevel(4)
-                    }.commands()
+                    requires(CommandManager.requirePermissionLevel(PERMISSION_CHECK))
+                        .commands()
                 }
             }
         }
