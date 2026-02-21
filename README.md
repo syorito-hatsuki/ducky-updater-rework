@@ -101,7 +101,7 @@ Mod that give possibility to update mods without using third-party launchers
 | Command                                                   | OP | Permission | Description                                  |
 |-----------------------------------------------------------|----|------------|----------------------------------------------|
 | `/durw-server check datapack`                             | ✅  | `none`     | Check for datapack updates                   |
-| `/durw-server check fabric`                               | ✅  | `none`     | Check for fabirc updates                     |
+| `/durw-server check fabric`                               | ✅  | `none`     | Check for fabric updates                     |
 | `/durw-server clear-cache`                                | ✅  | `none`     | Clear database aka cache                     |
 | `/durw-server ignore by datapack-list`                    | ✅  | `none`     | List ignored datapacks                       |
 | `/durw-server ignore by fabric-list`                      | ✅  | `none`     | List ignored fabric mods                     |
