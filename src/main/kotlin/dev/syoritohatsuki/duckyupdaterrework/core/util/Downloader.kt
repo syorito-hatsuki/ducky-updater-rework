@@ -21,11 +21,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.command.CommandSource
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.ChatFormatting
+import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
 import java.io.File
 import java.net.URI
 import java.net.URLDecoder
@@ -58,7 +58,7 @@ object Downloader {
 
     @Throws(IllegalStateException::class)
     fun download(
-        context: CommandContext<out CommandSource>,
+        context: CommandContext<out SharedSuggestionProvider>,
         mapOfUrlAndOldFile: Map<ProjectId, Pair<Url, Filename>>,
         loader: Loader
     ) {
@@ -73,7 +73,7 @@ object Downloader {
         CoroutineScope(Dispatchers.IO).launch {
             val mode = ConfigManager.read().downloadMode
 
-            context.source.sendMessage(Text.literal("Download starting...").formatted(Formatting.GREEN))
+            context.source.sendMessage(Component.literal("Download starting...").withStyle(ChatFormatting.GREEN))
             DuckyUpdaterReWork.logger.info("${BRIGHT_GREEN}Download starting...$RESET")
             val directoriesByProjectId = Database.getDirectoriesByProjectId(mapOfUrlAndOldFile.keys, loader)
 
@@ -119,30 +119,30 @@ object Downloader {
                 }.awaitAll()
             }
 
-            if (failed.size > 0) {
+            if (failed.isNotEmpty()) {
                 context.source.sendMessage(
-                    Text.literal("Failed to download next mods: ").formatted(Formatting.RED),
+                    Component.literal("Failed to download next mods: ").withStyle(ChatFormatting.RED),
                     *failed.map {
-                        Text.literal("- ${it.filename}").styled { style ->
-                            style.withColor(Formatting.RED)
-                                .withHoverEvent(HoverEvent.ShowText(Text.literal(it.reason)))
+                        Component.literal("- ${it.filename}").withStyle { style ->
+                            style.withColor(ChatFormatting.RED)
+                                .withHoverEvent(HoverEvent.ShowText(Component.literal(it.reason)))
                                 .withClickEvent(ClickEvent.OpenUrl(URI.create(it.url)))
                         }
                     }.toTypedArray()
                 )
 
                 DuckyUpdaterReWork.logger.warn("${BRIGHT_RED}Failed to download next mods:$RESET")
-                failed.map {
+                failed.forEach {
                     DuckyUpdaterReWork.logger.warn("$BRIGHT_RED - ${it.filename} | ${it.reason}$RESET")
                 }
             } else {
-                context.source.sendMessage(Text.literal("Download completed").formatted(Formatting.GREEN))
+                context.source.sendMessage(Component.literal("Download completed").withStyle(ChatFormatting.GREEN))
                 context.source.sendMessage(
-                    Text.literal(
+                    Component.literal(
                         "${
                             ConfigManager.read().fileAction.name.lowercase().replaceFirstChar { it.uppercaseChar() }
                         } will start after restart ${FabricLoader.getInstance().environmentType.name.lowercase()}"
-                    ).formatted(Formatting.RED)
+                    ).withStyle(ChatFormatting.RED)
                 )
                 DuckyUpdaterReWork.logger.info("${BRIGHT_GREEN}Download completed$RESET")
                 DuckyUpdaterReWork.logger.info(

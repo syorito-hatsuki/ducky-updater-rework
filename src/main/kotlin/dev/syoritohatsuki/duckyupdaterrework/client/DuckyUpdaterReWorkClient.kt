@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
-import net.minecraft.client.MinecraftClient
-import net.minecraft.util.WorldSavePath
+import net.minecraft.client.Minecraft
+import net.minecraft.world.level.storage.LevelResource
 
 object DuckyUpdaterReWorkClient : ClientModInitializer {
     override fun onInitializeClient() {
@@ -32,7 +32,7 @@ object DuckyUpdaterReWorkClient : ClientModInitializer {
 
         ClientPlayConnectionEvents.JOIN.register(ClientPlayConnectionEvents.Join { _, _, _ ->
             DuckyUpdaterApi.defaultDatapacksDir =
-                MinecraftClient.getInstance().server?.getSavePath(WorldSavePath.DATAPACKS)?.toAbsolutePath()
+                Minecraft.getInstance().singleplayerServer?.getWorldPath(LevelResource.DATAPACK_DIR)?.toAbsolutePath()
         })
 
         CoroutineScope(Dispatchers.IO).launch {

@@ -23,11 +23,11 @@ import dev.syoritohatsuki.duckyupdaterrework.server.message.RESET
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.minecraft.command.CommandSource
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.ChatFormatting
+import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.Component
 
-fun LiteralArgumentBuilder<out CommandSource>.commands() {
+fun LiteralArgumentBuilder<out SharedSuggestionProvider>.commands() {
 
     /*   Config commands :)   */
     literal("config") {
@@ -36,13 +36,13 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                 literal(mode.name) {
                     executes {
                         ConfigManager.read().copy(downloadMode = mode).write()
-                        it.source.sendMessage(Text.literal("Download mode: ").apply {
+                        it.source.sendMessage(Component.literal("Download mode: ").apply {
                             append(
                                 when (mode) {
-                                    Downloader.Mode.SEQUENTIALLY -> Text.literal("Sequentially")
-                                        .formatted(Formatting.AQUA)
+                                    Downloader.Mode.SEQUENTIALLY -> Component.literal("Sequentially")
+                                        .withStyle(ChatFormatting.AQUA)
 
-                                    Downloader.Mode.PARALLEL -> Text.literal("Parallel").formatted(Formatting.AQUA)
+                                    Downloader.Mode.PARALLEL -> Component.literal("Parallel").withStyle(ChatFormatting.AQUA)
                                 }
                             )
                         })
@@ -62,12 +62,12 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                 literal(action.name) {
                     executes {
                         ConfigManager.read().copy(fileAction = action).write()
-                        it.source.sendMessage(Text.literal("File Action after download: ").apply {
+                        it.source.sendMessage(Component.literal("File Action after download: ").apply {
                             append(
                                 when (action) {
-                                    FileActions.FileAction.DELETE -> Text.literal("Delete").formatted(Formatting.AQUA)
-                                    FileActions.FileAction.DISABLE -> Text.literal("Disable").formatted(Formatting.AQUA)
-                                    FileActions.FileAction.ARCHIVE -> Text.literal("Archive").formatted(Formatting.AQUA)
+                                    FileActions.FileAction.DELETE -> Component.literal("Delete").withStyle(ChatFormatting.AQUA)
+                                    FileActions.FileAction.DISABLE -> Component.literal("Disable").withStyle(ChatFormatting.AQUA)
+                                    FileActions.FileAction.ARCHIVE -> Component.literal("Archive").withStyle(ChatFormatting.AQUA)
                                 }
                             )
                         })
@@ -88,11 +88,11 @@ fun LiteralArgumentBuilder<out CommandSource>.commands() {
                 executes {
                     val check = BoolArgumentType.getBool(it, "check")
                     ConfigManager.read().copy(checkUpdatesOnBoot = check).write()
-                    it.source.sendMessage(Text.literal("Updated checking on boot: ").apply {
+                    it.source.sendMessage(Component.literal("Updated checking on boot: ").apply {
                         append(
                             when (check) {
-                                true -> Text.literal("Enabled").formatted(Formatting.GREEN)
-                                false -> Text.literal("Disabled").formatted(Formatting.RED)
+                                true -> Component.literal("Enabled").withStyle(ChatFormatting.GREEN)
+                                false -> Component.literal("Disabled").withStyle(ChatFormatting.RED)
                             }
                         )
                     })

@@ -11,5 +11,5 @@ data class LatestVersionByHash(
     val algorithm: String = "sha512",
     val loaders: List<String> = listOf(Loader.FABRIC.name.lowercase()),
     @SerialName("game_versions")
-    val gameVersion: List<String> = listOf(SharedConstants.getGameVersion().name())
+    val gameVersion: List<String> = listOf(SharedConstants.getCurrentVersion().name())
 )

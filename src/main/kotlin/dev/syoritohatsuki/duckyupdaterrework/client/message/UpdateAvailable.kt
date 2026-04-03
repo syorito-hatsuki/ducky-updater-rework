@@ -4,40 +4,40 @@ import dev.syoritohatsuki.duckyupdaterrework.core.api.models.Loader
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.ProjectId
-import net.minecraft.client.network.ClientCommandSource
-import net.minecraft.command.CommandSource
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
+import net.minecraft.ChatFormatting
+import net.minecraft.client.multiplayer.ClientSuggestionProvider
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
 
 fun updateAvailable(
-    source: CommandSource, printer: Printer, additionalInfos: MutableMap<ProjectId, AdditionalInfo>, loader: Loader
-): Text = Text.empty().apply {
-    append(Text.literal(printer.prefix))
-    append(Text.literal(" [").formatted(Formatting.DARK_GRAY))
+    source: SharedSuggestionProvider, printer: Printer, additionalInfos: MutableMap<ProjectId, AdditionalInfo>, loader: Loader
+): Component = Component.empty().apply {
+    append(Component.literal(printer.prefix))
+    append(Component.literal(" [").withStyle(ChatFormatting.DARK_GRAY))
     if (printer.currentExist) {
-        append(Text.literal(printer.matchedVersion).formatted(Formatting.GRAY))
-        append(Text.literal(printer.currentUnMatchVersion).formatted(Formatting.RED))
-        append(Text.literal(" -> ").formatted(Formatting.DARK_GRAY))
+        append(Component.literal(printer.matchedVersion).withStyle(ChatFormatting.GRAY))
+        append(Component.literal(printer.currentUnMatchVersion).withStyle(ChatFormatting.RED))
+        append(Component.literal(" -> ").withStyle(ChatFormatting.DARK_GRAY))
     }
-    append(Text.literal(printer.matchedVersion).formatted(Formatting.GRAY))
-    append(Text.literal(printer.newUnMatchVersion).formatted(Formatting.GREEN))
-    append(Text.literal("]").formatted(Formatting.DARK_GRAY))
-    styled { style ->
+    append(Component.literal(printer.matchedVersion).withStyle(ChatFormatting.GRAY))
+    append(Component.literal(printer.newUnMatchVersion).withStyle(ChatFormatting.GREEN))
+    append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY))
+    withStyle { style ->
         style.withClickEvent(
             ClickEvent.SuggestCommand(
                 when (source) {
-                    is ServerCommandSource -> "/durw-server update by ${loader.name.lowercase()}-ids ${printer.projectId}"
-                    is ClientCommandSource -> "/durw-client update by ${loader.name.lowercase()}-ids ${printer.projectId}"
-                    else -> return@styled style
+                    is CommandSourceStack -> "/durw-server update by ${loader.name.lowercase()}-ids ${printer.projectId}"
+                    is ClientSuggestionProvider -> "/durw-client update by ${loader.name.lowercase()}-ids ${printer.projectId}"
+                    else -> return@withStyle style
                 }
             )
         ).withHoverEvent(
             HoverEvent.ShowText(
-                Text.literal(
-                    additionalInfos[printer.projectId]?.changeLog ?: return@styled style
+                Component.literal(
+                    additionalInfos[printer.projectId]?.changeLog ?: return@withStyle style
                 )
             )
         )

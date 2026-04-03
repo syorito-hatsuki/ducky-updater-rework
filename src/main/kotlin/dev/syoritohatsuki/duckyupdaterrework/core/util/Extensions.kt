@@ -5,25 +5,25 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
-import net.minecraft.client.MinecraftClient
-import net.minecraft.command.CommandSource
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.Text
+import net.minecraft.client.Minecraft
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.network.chat.Component
 
 fun Boolean.toInt(): Int = if (this) 1 else 0
 
-fun CommandSource.sendMessage(vararg textLines: Text) {
+fun SharedSuggestionProvider.sendMessage(vararg textLines: Component) {
     when (this) {
-        is ServerCommandSource -> textLines.map { player?.sendMessage(it, false) }
-        is FabricClientCommandSource -> textLines.map {
-            CoroutineScope(MinecraftClient.getInstance().asCoroutineDispatcher()).launch {
+        is CommandSourceStack -> textLines.forEach { player?.sendSystemMessage(it, false) }
+        is FabricClientCommandSource -> textLines.forEach {
+            CoroutineScope(Minecraft.getInstance().asCoroutineDispatcher()).launch {
                 sendFeedback(it)
             }
         }
     }
 }
 
-fun CommandSource.sendMessageWithLog(message: String) {
-    sendMessage(Text.literal(message))
-    if (this is ServerCommandSource) logger.info(message)
+fun SharedSuggestionProvider.sendMessageWithLog(message: String) {
+    sendMessage(Component.literal(message))
+    if (this is CommandSourceStack) logger.info(message)
 }

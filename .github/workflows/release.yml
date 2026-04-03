@@ -5,11 +5,7 @@ on:
 
   push:
     branches:
-      - "1.20"
-      - "1.21.5"
-      - "1.21.6"
-      - "1.21.9"
-      - "1.21.11"
+      - "26.1"
     paths:
       - 'build.gradle.kts'
 
@@ -28,9 +24,10 @@ jobs:
         id: get_version
         run: |
           MOD_VERSION=$(grep -oP 'modVersion\s*=\s*\K.+' gradle.properties)
-          MC_VERSION=$(grep -oP 'minecraftVersion\s*=\s*\K.+' gradle.properties)
           echo "MOD_VERSION=$MOD_VERSION" >> $GITHUB_ENV
           echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
+          
+          MC_VERSION=$(grep -oP '^\s*minecraft\s*=\s*"\K[^"]+' gradle/libs.versions.toml)
           echo "MC_VERSION=$MC_VERSION" >> $GITHUB_ENV
           echo "minecraft_version=$MC_VERSION" >> $GITHUB_OUTPUT
 
@@ -38,7 +35,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 21
+          java-version: 25
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v3

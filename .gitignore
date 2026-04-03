@@ -1,4 +1,6 @@
-/.idea/
-/build/
-/.gradle/
-/run/
+.idea
+.gradle
+.kotlin
+
+build
+run
