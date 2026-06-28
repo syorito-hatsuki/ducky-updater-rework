@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - "26.1"
+      - "26.2"
     paths:
       - 'build.gradle.kts'
 
