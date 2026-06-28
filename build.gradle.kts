@@ -1,9 +1,9 @@
 import com.modrinth.minotaur.TaskModrinthUpload
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-val archivesBaseName: String by project
-val mavenGroup: String by project
-val modVersion: String by project
+val archivesBaseName = project.property("archivesBaseName") as String
+val mavenGroup = project.property("mavenGroup") as String
+val modVersion = project.property("modVersion") as String
 
 val javaVersion = JavaVersion.VERSION_25
 
@@ -23,6 +23,10 @@ version = modVersion
 
 repositories {
     maven("https://api.modrinth.com/maven")
+    maven {
+        name = "faststatsReleases"
+        url = uri("https://repo.faststats.dev/releases")
+    }
 }
 
 dependencies {
@@ -33,7 +37,8 @@ dependencies {
     implementation(libs.fabric.language.kotlin)
 
     embed(libs.modmenu.badges)
-    embed(libs.fstats)
+
+    embed(libs.faststats)
 
     embed(libs.bundles.ktor)
 
@@ -55,12 +60,12 @@ modrinth {
             additionalFiles.add(it)
         }
     }
-    gameVersions.addAll("26.1", "26.1.1")
+    gameVersions.addAll("26.2")
     loaders.add("fabric")
     changelog.set(rootProject.file("CHANGELOG.md").readText())
     dependencies {
         required.project("fabric-api", "fabric-language-kotlin")
-        embedded.project("fstats", "modmenu-badges-lib")
+        embedded.project("modmenu-badges-lib")
     }
 }
 

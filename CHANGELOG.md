@@ -1,2 +1,2 @@
-* Updated to 26.1
-  * Switched to Mojmaps
+* Updated to 26.2
+  * Moved from fStats to FastStats

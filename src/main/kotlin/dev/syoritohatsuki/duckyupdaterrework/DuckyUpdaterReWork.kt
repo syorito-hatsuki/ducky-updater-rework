@@ -1,7 +1,8 @@
 package dev.syoritohatsuki.duckyupdaterrework
 
-import dev.syoritohatsuki.duckyupdaterrework.core.config.ConfigManager
-import dev.syoritohatsuki.duckyupdaterrework.core.storage.Database
+import dev.faststats.ErrorTracker
+import dev.faststats.Metrics
+import dev.faststats.fabric.FabricContext
 import dev.syoritohatsuki.duckyupdaterrework.core.util.FileActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +23,17 @@ import kotlin.jvm.optionals.getOrNull
 
 object DuckyUpdaterReWork : ModInitializer {
 
+    val ERROR_TRACKER: ErrorTracker = ErrorTracker.contextAware()
     const val MOD_ID = "ducky-updater-rework"
 
     val logger: Logger = LogManager.getLogger()
+
+    private val context: FabricContext =
+        FabricContext.Factory(MOD_ID, "aeea891f803af77734853163e0e0cd44")
+            .metrics(Metrics.Factory::create)
+            .errorTrackerService(ERROR_TRACKER)
+            .create()
+
     val modVersion: String = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata.version.friendlyString
         ?: DateTimeFormatter.ofPattern("yyyy.M").format(LocalDateTime.now())
     val rootModsDir: Path = System.getProperty(SystemProperties.MODS_FOLDER)?.let { Paths.get(it) }
@@ -32,9 +41,6 @@ object DuckyUpdaterReWork : ModInitializer {
 
     override fun onInitialize() {
         logger.info("Loading common-side DURW")
-
-        ConfigManager
-        Database
 
         CoroutineScope(Dispatchers.IO).launch {
             FileActions.run()

@@ -35,7 +35,6 @@
     ]
   },
   "custom": {
-    "fstats": 35,
     "mcb": [
       {
         "name": "Ducky House",
@@ -51,7 +50,6 @@
     "minecraft": ">=${minecraft}"
   },
   "recommends": {
-    "modmenu-badges-lib": "*",
-    "fstats-api": "*"
+    "modmenu-badges-lib": "*"
   }
 }
