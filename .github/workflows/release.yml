@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - "26.2"
+      - "26.3"
     paths:
       - 'build.gradle.kts'
 
@@ -71,19 +71,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify Discord
-        run: |
-          CHANGELOG=$(cat CHANGELOG.md)
-          MESSAGE="# ${{ steps.get_version.outputs.mod_version }}"$'\n'"\
-          $CHANGELOG
-          ## Version: ${{ steps.get_version.outputs.minecraft_version }}"$'\n'"\
-          <:modrinth:1373792332469768213> ${{ steps.get_modrinth_url.outputs.url }}"$'\n'"\
-          <:github:1373792356024979617> ${{ steps.create_release.outputs.url }}"
-          
-          jq -n --arg content "$MESSAGE" '{content: $content}' > payload.json
-          
-          curl -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
-               -H "Content-Type: application/json" \
-               -X POST \
-               -d @payload.json \
-               "https://discord.com/api/v10/channels/${{ secrets.DISCORD_CHANNEL_ID }}/messages"
+#      - name: Notify Discord
+#        run: |
+#          CHANGELOG=$(cat CHANGELOG.md)
+#          MESSAGE="# ${{ steps.get_version.outputs.mod_version }}"$'\n'"\
+#          $CHANGELOG
+#          ## Version: ${{ steps.get_version.outputs.minecraft_version }}"$'\n'"\
+#          <:modrinth:1373792332469768213> ${{ steps.get_modrinth_url.outputs.url }}"$'\n'"\
+#          <:github:1373792356024979617> ${{ steps.create_release.outputs.url }}"
+#
+#          jq -n --arg content "$MESSAGE" '{content: $content}' > payload.json
+#
+#          curl -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
+#               -H "Content-Type: application/json" \
+#               -X POST \
+#               -d @payload.json \
+#               "https://discord.com/api/v10/channels/${{ secrets.DISCORD_CHANNEL_ID }}/messages"

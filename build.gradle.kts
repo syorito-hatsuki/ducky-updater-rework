@@ -63,7 +63,7 @@ modrinth {
             additionalFiles.add(it)
         }
     }
-    gameVersions.addAll("26.2")
+    gameVersions.addAll("26.3")
     loaders.add("fabric")
     changelog.set(rootProject.file("CHANGELOG.md").readText())
     dependencies {
