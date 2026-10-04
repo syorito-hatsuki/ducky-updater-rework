@@ -5,10 +5,7 @@ import dev.syoritohatsuki.duckyupdaterrework.core.dto.durw.Printer
 import dev.syoritohatsuki.duckyupdaterrework.core.dto.modrinth.AdditionalInfo
 import dev.syoritohatsuki.duckyupdaterrework.core.storage.ProjectId
 import net.minecraft.ChatFormatting
-import net.minecraft.client.multiplayer.ClientSuggestionProvider
-import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 
@@ -26,15 +23,7 @@ fun updateAvailable(
     append(Component.literal(printer.newUnMatchVersion).withStyle(ChatFormatting.GREEN))
     append(Component.literal("]").withStyle(ChatFormatting.DARK_GRAY))
     withStyle { style ->
-        style.withClickEvent(
-            ClickEvent.SuggestCommand(
-                when (source) {
-                    is CommandSourceStack -> "/durw-server update by ${loader.name.lowercase()}-ids ${printer.projectId}"
-                    is ClientSuggestionProvider -> "/durw-client update by ${loader.name.lowercase()}-ids ${printer.projectId}"
-                    else -> return@withStyle style
-                }
-            )
-        ).withHoverEvent(
+        style.withHoverEvent(
             HoverEvent.ShowText(
                 Component.literal(
                     additionalInfos[printer.projectId]?.changeLog ?: return@withStyle style
