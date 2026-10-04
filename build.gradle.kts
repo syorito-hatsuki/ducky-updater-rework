@@ -7,11 +7,30 @@ val modVersion = project.property("modVersion") as String
 
 val javaVersion = JavaVersion.VERSION_25
 
+val ktorConfiguration = configurations.create("ktor") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+
+    exclude(group = "org.jetbrains.kotlin")
+}
+
 plugins {
     alias(libs.plugins.fabric.loom)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.minotaur)
+}
+
+afterEvaluate {
+    configurations.named("ktor").get()
+        .resolvedConfiguration
+        .resolvedArtifacts
+        .forEach { artifact ->
+            dependencies.add(
+                "include",
+                "${artifact.moduleVersion.id.group}:${artifact.name}:${artifact.moduleVersion.id.version}"
+            )
+        }
 }
 
 base {
@@ -43,12 +62,19 @@ dependencies {
 
     embed(libs.faststats)
 
-    embed(libs.bundles.ktor)
+    embedKtor(libs.ktor.client.cio)
+    embedKtor(libs.ktor.client.content.negotiation)
+    embedKtor(libs.ktor.serialization.kotlinx.json)
 
     embed(libs.sqlite)
     embed(libs.hikari)
 
     embed(libs.zip4j)
+}
+
+fun DependencyHandlerScope.embedKtor(dependency: Provider<*>) {
+    implementation(dependency)
+    add(ktorConfiguration.name, dependency)
 }
 
 modrinth {

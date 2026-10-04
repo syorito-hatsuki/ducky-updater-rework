@@ -20,39 +20,12 @@ fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-l
 faststats = { module = "dev.faststats.metrics:fabric", version.ref = "faststats" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation-jvm", version.ref = "ktor" }
-ktor-client-core = { module = "io.ktor:ktor-client-core-jvm", version.ref = "ktor" }
-ktor-events = { module = "io.ktor:ktor-events-jvm", version.ref = "ktor" }
-ktor-http-cio = { module = "io.ktor:ktor-http-cio-jvm", version.ref = "ktor" }
-ktor-http = { module = "io.ktor:ktor-http-jvm", version.ref = "ktor" }
-ktor-io = { module = "io.ktor:ktor-io-jvm", version.ref = "ktor" }
-ktor-network = { module = "io.ktor:ktor-network-jvm", version.ref = "ktor" }
-ktor-network-tls = { module = "io.ktor:ktor-network-tls-jvm", version.ref = "ktor" }
-ktor-serialization = { module = "io.ktor:ktor-serialization-jvm", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json-jvm", version.ref = "ktor" }
-ktor-serialization-kotlinx = { module = "io.ktor:ktor-serialization-kotlinx-jvm", version.ref = "ktor" }
-ktor-utils = { module = "io.ktor:ktor-utils-jvm", version.ref = "ktor" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 modmenu-badges = { module = "maven.modrinth:modmenu-badges-lib", version.ref = "modmenu-badges" }
 sqlite = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite" }
 zip4j = { module = "net.lingala.zip4j:zip4j", version.ref = "zip4j" }
-
-[bundles]
-ktor = [
-    "ktor-client-cio",
-    "ktor-client-content-negotiation",
-    "ktor-client-core",
-    "ktor-events",
-    "ktor-http-cio",
-    "ktor-http",
-    "ktor-io",
-    "ktor-network",
-    "ktor-network-tls",
-    "ktor-serialization",
-    "ktor-serialization-kotlinx-json",
-    "ktor-serialization-kotlinx",
-    "ktor-utils",
-]
 
 [plugins]
 fabric-loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric-loom" }
